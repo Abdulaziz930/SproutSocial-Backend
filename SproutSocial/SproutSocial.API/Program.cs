@@ -19,6 +19,8 @@ builder.Services.AddApiService();
 builder.Services.AddDatabaseConnectionService(configuration, "DefaultConnection");
 builder.Services.AddIdentityService<AppUser, IdentityRole>();
 
+builder.Services.AddAuthenticationService(configuration);
+
 builder.Services.AddMapperService();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -42,6 +44,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseExceptionHandlerMiddleware();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
