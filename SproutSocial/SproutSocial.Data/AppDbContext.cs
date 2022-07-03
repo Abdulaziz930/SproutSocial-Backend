@@ -21,6 +21,7 @@ namespace SproutSocial.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(TopicConfiguration).Assembly);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
