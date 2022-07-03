@@ -33,6 +33,8 @@ namespace SproutSocial.API.Extensions.ApplicationExtensions
                             statusCode = StatusCodes.Status415UnsupportedMediaType;
                         else if (contextFeature.Error is FileSizeException)
                             statusCode = StatusCodes.Status413RequestEntityTooLarge;
+                        else if (contextFeature.Error is RegisterFailException)
+                            statusCode = StatusCodes.Status422UnprocessableEntity;
                     }
 
                     context.Response.StatusCode = statusCode;
