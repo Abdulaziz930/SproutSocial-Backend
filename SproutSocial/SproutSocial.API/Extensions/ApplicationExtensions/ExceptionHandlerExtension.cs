@@ -36,7 +36,7 @@ namespace SproutSocial.API.Extensions.ApplicationExtensions
                             statusCode = StatusCodes.Status413RequestEntityTooLarge;
                         else if (contextFeature.Error is RegisterFailException)
                             statusCode = StatusCodes.Status422UnprocessableEntity;
-                        else if (contextFeature.Error is LoginFailException || contextFeature.Error is SecurityTokenException)
+                        else if (contextFeature.Error is AuthFailException || contextFeature.Error is SecurityTokenException)
                             statusCode = StatusCodes.Status401Unauthorized;
                     }
 
