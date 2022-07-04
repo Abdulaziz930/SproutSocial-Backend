@@ -10,5 +10,7 @@ namespace SproutSocial.Service.Services.Interfaces
     public interface IAccountService
     {
         Task RegisterAsync(RegisterDto registerDto);
+        Task<AuthenticatedResponseDto> LoginAsync(LoginDto loginDto);
+        Task<AuthenticatedResponseDto> RefreshTokenAsync(TokenPostDto tokenDto);
     }
 }

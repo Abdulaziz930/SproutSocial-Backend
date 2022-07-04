@@ -1,24 +1,90 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using SproutSocial.Core.Entities;
 using SproutSocial.Data.Identity;
 using SproutSocial.Service.Dtos.Account;
 using SproutSocial.Service.Exceptions;
+using SproutSocial.Service.HelperServices.Interfaces;
 using SproutSocial.Service.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace SproutSocial.Service.Services.Implementations
 {
     public class AccountService : IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly ITokenService _tokenService;
 
-        public AccountService(UserManager<AppUser> userManager)
+        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService)
         {
             _userManager = userManager;
+            _tokenService = tokenService;
+        }
+
+        public async Task<AuthenticatedResponseDto> LoginAsync(LoginDto loginDto)
+        {
+            var user = await _userManager.FindByNameAsync(loginDto.Username);
+            if (user == null || !(await _userManager.CheckPasswordAsync(user, loginDto.Password)))
+                throw new LoginFailException("Username or Password invalid");
+
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user!.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var role in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var token = _tokenService.GenerateAccessToken(authClaims);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = token.ValidTo.AddMinutes(3);
+            
+            await _userManager.UpdateAsync(user);
+
+            return new AuthenticatedResponseDto
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken,
+                Expiration = token.ValidTo
+            };
+        }
+
+        public async Task<AuthenticatedResponseDto> RefreshTokenAsync(TokenPostDto tokenDto)
+        {
+            string? accessToken = tokenDto.AccessToken;
+            string? refreshToken = tokenDto.RefreshToken;
+
+            var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+            if (principal == null)
+                throw new SecurityTokenException("Invalid access token or refresh token");
+
+            string? userName = principal!.Identity!.Name;
+
+            var user = await _userManager.FindByNameAsync(userName);
+            if(user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime > DateTime.UtcNow)
+                throw new SecurityTokenException("Invalid access token or refresh token");
+
+            var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = newAccessToken.ValidTo.AddMinutes(3);
+
+            await _userManager.UpdateAsync(user);
+
+            return new AuthenticatedResponseDto
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
+                RefreshToken = newRefreshToken,
+                Expiration = newAccessToken.ValidTo
+            };
         }
 
         public async Task RegisterAsync(RegisterDto registerDto)
