@@ -119,5 +119,17 @@ namespace SproutSocial.Service.Services.Implementations
 
             await _userManager.AddToRoleAsync(user, RoleConstants.RoleType.Member.ToString());
         }
+
+        public async Task RevokeAsync(string? userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                throw new ItemNotFoundException("Invalid username");
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = default;
+
+            await _userManager.UpdateAsync(user);
+        }
     }
 }
