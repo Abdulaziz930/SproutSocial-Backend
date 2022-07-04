@@ -53,5 +53,18 @@ namespace SproutSocial.API.Controllers
 
             return NoContent();
         }
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            await _accountService.ChangePasswordAsync(changePasswordDto);
+
+            return Ok(new ResponseDto
+            {
+                Status = StatusCodes.Status200OK,
+                Message = "Password successfully changed"
+            });
+        }
     }
 }
