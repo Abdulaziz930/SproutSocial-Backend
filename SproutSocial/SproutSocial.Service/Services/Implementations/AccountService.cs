@@ -28,6 +28,9 @@ namespace SproutSocial.Service.Services.Implementations
             if (user == null || !(await _userManager.CheckPasswordAsync(user, loginDto.Password)))
                 throw new LoginFailException("Username or Password invalid");
 
+            if(!user.IsActive)
+                throw new LoginFailException("User not active, please activate your account");
+
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user!.UserName),
