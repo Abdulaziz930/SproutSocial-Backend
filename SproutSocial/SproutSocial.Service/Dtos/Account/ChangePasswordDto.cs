@@ -22,7 +22,7 @@ namespace SproutSocial.Service.Dtos.Account
             RuleFor(x => x.Username).NotEmpty().NotNull().MinimumLength(3).MaximumLength(250);
             RuleFor(x => x.OldPassword).NotEmpty().NotNull().MinimumLength(8).MaximumLength(100);
             RuleFor(x => x.NewPassword).NotEmpty().NotNull().MinimumLength(8).MaximumLength(100);
-            RuleFor(x => x.ConfirmPassword).Null().NotEmpty().MinimumLength(8).MaximumLength(100).Equal(x => x.NewPassword);
+            RuleFor(x => x.ConfirmPassword).NotEmpty().NotNull().MinimumLength(8).MaximumLength(100).Equal(x => x.NewPassword);
         }
     }
 }
