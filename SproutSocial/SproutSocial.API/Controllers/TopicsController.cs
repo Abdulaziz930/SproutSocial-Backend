@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SproutSocial.Service.Dtos;
 using SproutSocial.Service.Dtos.TopicDtos;
@@ -6,6 +7,7 @@ using SproutSocial.Service.Services.Interfaces;
 
 namespace SproutSocial.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TopicsController : ControllerBase
