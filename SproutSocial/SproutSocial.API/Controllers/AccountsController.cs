@@ -22,7 +22,26 @@ namespace SproutSocial.API.Controllers
         {
             await _accountService.RegisterAsync(registerDto);
 
-            return Ok(new ResponseDto { Status = StatusCodes.Status201Created, Message = "User successfully registered" });
+            return StatusCode(
+                StatusCodes.Status201Created,
+                new ResponseDto
+                {
+                    Status = StatusCodes.Status201Created,
+                    Message = "User successfully registered"
+                }
+            );
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            return Ok(await _accountService.LoginAsync(loginDto));
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(TokenPostDto tokenPostDto)
+        {
+            return Ok(await _accountService.RefreshTokenAsync(tokenPostDto));
         }
     }
 }
