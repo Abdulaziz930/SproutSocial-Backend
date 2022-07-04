@@ -9,6 +9,7 @@ namespace SproutSocial.API.Extensions.ServiceExtensions
         {
             services.AddSingleton<IHelperAccessor, HelperAccessor>();
             services.AddScoped<IFileManager, FileManager>();
+            services.AddTransient<ITokenService, TokenService>();
         }
     }
 }
