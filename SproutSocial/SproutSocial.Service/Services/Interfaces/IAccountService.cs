@@ -13,5 +13,6 @@ namespace SproutSocial.Service.Services.Interfaces
         Task<AuthenticatedResponseDto> LoginAsync(LoginDto loginDto);
         Task<AuthenticatedResponseDto> RefreshTokenAsync(TokenPostDto tokenDto);
         Task RevokeAsync(string? userName);
+        Task ChangePasswordAsync(ChangePasswordDto changePasswordDto);
     }
 }

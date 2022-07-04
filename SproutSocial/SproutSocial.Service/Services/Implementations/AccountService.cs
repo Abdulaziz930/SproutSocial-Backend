@@ -26,10 +26,10 @@ namespace SproutSocial.Service.Services.Implementations
         {
             var user = await _userManager.FindByNameAsync(loginDto.Username);
             if (user == null || !(await _userManager.CheckPasswordAsync(user, loginDto.Password)))
-                throw new LoginFailException("Username or Password invalid");
+                throw new AuthFailException("Username or Password invalid");
 
             if(!user.IsActive)
-                throw new LoginFailException("User not active, please activate your account");
+                throw new AuthFailException("User not active, please activate your account");
 
             var authClaims = new List<Claim>
             {
@@ -133,6 +133,28 @@ namespace SproutSocial.Service.Services.Implementations
             user.RefreshTokenExpiryTime = default;
 
             await _userManager.UpdateAsync(user);
+        }
+
+        public async Task ChangePasswordAsync(ChangePasswordDto changePasswordDto)
+        {
+            var user = await _userManager.FindByNameAsync(changePasswordDto.Username);
+            if (user is null)
+                throw new AuthFailException("Invalid username");
+
+            if (!await _userManager.CheckPasswordAsync(user, changePasswordDto.OldPassword))
+                throw new AuthFailException("Old password is not valid.");
+
+            var identityResult = await  _userManager
+                .ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+            if (!identityResult.Succeeded)
+            {
+                string result = String.Empty;
+                foreach (var error in identityResult.Errors)
+                {
+                    result += error.Description;
+                }
+                throw new AuthFailException(result);
+            }
         }
     }
 }
