@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SproutSocial.Service.Dtos;
 using SproutSocial.Service.Dtos.Account;
@@ -42,6 +43,15 @@ namespace SproutSocial.API.Controllers
         public async Task<IActionResult> RefreshToken(TokenPostDto tokenPostDto)
         {
             return Ok(await _accountService.RefreshTokenAsync(tokenPostDto));
+        }
+
+        [Authorize]
+        [HttpPost("revoke/{username}")]
+        public async Task<IActionResult> Revoke(string username)
+        {
+            await _accountService.RevokeAsync(username);
+
+            return NoContent();
         }
     }
 }
