@@ -8,7 +8,7 @@ namespace SproutSocial.Service.Utils
 {
     public static class Constants
     {
-        public static string EmailAddress = "";
-        public static string EmailPassword = "";
+        public static string EmailAddress = String.Empty;
+        public static string EmailPassword = String.Empty;
     }
 }
