@@ -15,5 +15,6 @@ namespace SproutSocial.Service.Services.Interfaces
         Task RevokeAsync(string? userName);
         Task ChangePasswordAsync(ChangePasswordDto changePasswordDto);
         Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
+        Task ResetPasswordAsync(string id, ResetPasswordDto resetPasswordDto);
     }
 }

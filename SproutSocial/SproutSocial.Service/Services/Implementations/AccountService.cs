@@ -170,5 +170,26 @@ namespace SproutSocial.Service.Services.Implementations
 
             await EmailSender.SendEmailAsync(forgotPasswordDto.Email, message, "SproutSocial - Reset Password");
         }
+
+        public async Task ResetPasswordAsync(string id, ResetPasswordDto resetPasswordDto)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentNullException("id cannot be null");
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                throw new ItemNotFoundException("user not found");
+
+            var identityResult = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+            if (!identityResult.Succeeded)
+            {
+                string result = String.Empty;
+                foreach (var error in identityResult.Errors)
+                {
+                    result += error.Description;
+                }
+                throw new AuthFailException(result);
+            }
+        }
     }
 }
