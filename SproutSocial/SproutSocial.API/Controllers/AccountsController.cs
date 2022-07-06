@@ -77,6 +77,18 @@ namespace SproutSocial.API.Controllers
                 Status = StatusCodes.Status200OK,
                 Message = "Reset password link successfully sendded your email address"
             });
-        } 
+        }
+
+        [HttpPost("reset-password/{id}")]
+        public async Task<IActionResult> ResetPassword(string id, ResetPasswordDto resetPasswordDto)
+        {
+            await _accountService.ResetPasswordAsync(id, resetPasswordDto);
+
+            return Ok(new ResponseDto
+            {
+                Status = StatusCodes.Status200OK,
+                Message = "Password has been successfully updated"
+            });
+        }
     }
 }
