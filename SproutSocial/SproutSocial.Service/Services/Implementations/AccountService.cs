@@ -6,6 +6,7 @@ using SproutSocial.Service.Dtos.Account;
 using SproutSocial.Service.Exceptions;
 using SproutSocial.Service.HelperServices.Interfaces;
 using SproutSocial.Service.Services.Interfaces;
+using SproutSocial.Service.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -155,6 +156,19 @@ namespace SproutSocial.Service.Services.Implementations
                 }
                 throw new AuthFailException(result);
             }
+        }
+
+        public async Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+        {
+            var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            if (user is null)
+                throw new AuthFailException("Invalid email address");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            string message = $"<a href='{token}'>Reset Password</a>";
+
+            await EmailSender.SendEmailAsync(forgotPasswordDto.Email, message, "SproutSocial - Reset Password");
         }
     }
 }
