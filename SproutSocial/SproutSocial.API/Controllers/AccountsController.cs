@@ -66,5 +66,17 @@ namespace SproutSocial.API.Controllers
                 Message = "Password successfully changed"
             });
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            await _accountService.ForgotPasswordAsync(forgotPasswordDto);
+
+            return Ok(new ResponseDto
+            {
+                Status = StatusCodes.Status200OK,
+                Message = "Reset password link successfully sendded your email address"
+            });
+        } 
     }
 }
