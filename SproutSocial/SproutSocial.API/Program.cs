@@ -30,6 +30,8 @@ builder.Services.AddHelperService();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddConstants(configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
