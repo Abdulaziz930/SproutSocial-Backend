@@ -90,5 +90,18 @@ namespace SproutSocial.API.Controllers
                 Message = "Password has been successfully updated"
             });
         }
+
+        [Authorize]
+        [HttpPost("select-topic/{userId}/{topicId}")]
+        public async Task<IActionResult> SelectTopic(string userId, int topicId)
+        {
+            await _accountService.SelectTopicAsync(userId, topicId);
+
+            return Ok(new ResponseDto
+            {
+                Status = StatusCodes.Status200OK,
+                Message = "Topic successfully selected"
+            });
+        }
     }
 }
