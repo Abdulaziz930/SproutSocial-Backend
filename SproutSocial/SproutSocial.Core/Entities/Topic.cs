@@ -9,5 +9,6 @@ namespace SproutSocial.Core.Entities
     public class Topic : BaseEntity
     {
         public string? Name { get; set; }
+        public ICollection<UserTopic> UserTopics { get; set; }
     }
 }
