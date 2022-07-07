@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SproutSocial.Core.Entities;
 using SproutSocial.Service.Dtos.TopicDtos;
+using SproutSocial.Service.Dtos.UserTopicDtos;
 using SproutSocial.Service.HelperServices.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace SproutSocial.Service.Profiles
             CreateMap<Topic, TopicDetailDto>().ReverseMap();
             CreateMap<Topic, TopicListItemDto>().ReverseMap();
             CreateMap<Topic, TopicPostDto>().ReverseMap();
+
+            CreateMap<UserTopic, UserTopicDto>().ReverseMap();
         }
     }
 }
