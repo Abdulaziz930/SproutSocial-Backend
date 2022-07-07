@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using SproutSocial.Core;
 using SproutSocial.Core.Entities;
 using SproutSocial.Data.Identity;
 using SproutSocial.Service.Dtos.Account;
+using SproutSocial.Service.Dtos.UserTopicDtos;
 using SproutSocial.Service.Exceptions;
 using SproutSocial.Service.HelperServices.Interfaces;
 using SproutSocial.Service.Services.Interfaces;
@@ -16,11 +19,15 @@ namespace SproutSocial.Service.Services.Implementations
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService)
+        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<AuthenticatedResponseDto> LoginAsync(LoginDto loginDto)
@@ -190,6 +197,35 @@ namespace SproutSocial.Service.Services.Implementations
                 }
                 throw new AuthFailException(result);
             }
+        }
+
+        public async Task SelectTopicAsync(string userId, int? topicId)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || topicId is null)
+                throw new ArgumentNullException("id cannot be null");
+
+            var isExistTopic = await _unitOfWork.TopicRepository.IsExistsAsync(x => x.Id == topicId);
+            if (!isExistTopic)
+                throw new ItemNotFoundException($"Topic not found by id: {topicId}");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+                throw new AuthFailException("User not found");
+
+            UserTopicDto userTopicDto = new UserTopicDto
+            {
+                UserId = userId,
+                TopicId = topicId.Value
+            };
+
+            List<UserTopic> userTopics = new List<UserTopic>()
+            {
+                 _mapper.Map<UserTopic>(userTopicDto)
+            };
+
+            user.UserTopics = userTopics;
+
+            await _unitOfWork.CommitAsync();
         }
     }
 }
