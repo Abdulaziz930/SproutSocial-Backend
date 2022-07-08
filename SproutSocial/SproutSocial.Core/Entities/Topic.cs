@@ -10,5 +10,6 @@ namespace SproutSocial.Core.Entities
     {
         public string? Name { get; set; }
         public ICollection<UserTopic> UserTopics { get; set; }
+        public ICollection<BlogTopic> BlogTopics { get; set; }
     }
 }
