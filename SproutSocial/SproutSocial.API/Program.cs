@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using SproutSocial.API.Extensions.ApplicationExtensions;
 using SproutSocial.API.Extensions.ServiceExtensions;
 using SproutSocial.Core;
+using SproutSocial.Core.Entities;
 using SproutSocial.Data;
 using SproutSocial.Service.Services.Interfaces;
 
@@ -15,6 +17,9 @@ builder.Services.AddApiService();
 
 //dotnet ef --startup-project ..\SproutSocial.API migrations add InitialMigration
 builder.Services.AddDatabaseConnectionService(configuration, "DefaultConnection");
+builder.Services.AddIdentityService<AppUser, IdentityRole>();
+
+builder.Services.AddAuthenticationService(configuration);
 
 builder.Services.AddMapperService();
 
@@ -24,6 +29,10 @@ builder.Services.AddHelperService();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddConstants(configuration);
+
+builder.Services.AddConfigureService();
 
 var app = builder.Build();
 
@@ -40,8 +49,12 @@ app.UseStaticFiles();
 
 app.UseExceptionHandlerMiddleware();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseSeedData();
 
 app.Run();
