@@ -17,6 +17,7 @@ namespace SproutSocial.Data
         }
 
         public DbSet<Topic> Topics { get; set; } = null!;
+        public DbSet<UserTopic> UserTopics { get; set; } = null!;
         public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
