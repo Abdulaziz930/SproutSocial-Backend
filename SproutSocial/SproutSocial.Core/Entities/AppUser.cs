@@ -15,5 +15,6 @@ namespace SproutSocial.Core.Entities
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
         public ICollection<UserTopic> UserTopics { get; set; }
+        public ICollection<Blog> Blogs { get; set; }
     }
 }
