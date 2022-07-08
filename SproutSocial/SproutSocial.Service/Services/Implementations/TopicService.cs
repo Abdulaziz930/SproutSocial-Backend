@@ -40,8 +40,7 @@ namespace SproutSocial.Service.Services.Implementations
 
         public async Task DeleteAsync(int? id)
         {
-            if (id is null)
-                throw new ArgumentNullException("Id cannot be null");
+            ArgumentNullException.ThrowIfNull(id);
 
             Topic topic = await _unitOfWork.TopicRepository.GetAsync(t => t.Id == id && !t.IsDeleted);
             if (topic is null)
@@ -54,8 +53,7 @@ namespace SproutSocial.Service.Services.Implementations
 
         public async Task EditAsync(int? id, TopicPostDto topicDto)
         {
-            if (id is null)
-                throw new ArgumentNullException("Id cannot be null");
+            ArgumentNullException.ThrowIfNull(id);
 
             Topic topic = await _unitOfWork.TopicRepository.GetAsync(t => t.Id == id && !t.IsDeleted);
             if (topic is null)
@@ -82,8 +80,7 @@ namespace SproutSocial.Service.Services.Implementations
 
         public async Task<TopicDetailDto> GetByIdAsync(int? id)
         {
-            if (id is null)
-                throw new ArgumentNullException("Id cannot be null");
+            ArgumentNullException.ThrowIfNull(id);
 
             Topic topic = await _unitOfWork.TopicRepository.GetAsync(t => t.Id == id && !t.IsDeleted);
             if (topic is null)
@@ -95,8 +92,7 @@ namespace SproutSocial.Service.Services.Implementations
 
         public async Task<PagenatedListDto<TopicListItemDto>> GetPagenatedAsync(int? page)
         {
-            if (page is null)
-                throw new ArgumentNullException("Id cannot be null");
+            ArgumentNullException.ThrowIfNull(page);
 
             if (page < 1)
                 throw new PageIndexFormatException("PageIndex must be greater or equal than 1");
@@ -115,8 +111,7 @@ namespace SproutSocial.Service.Services.Implementations
 
         public async Task<bool> IsExistsByIdAsync(int? id)
         {
-            if (id is null)
-                throw new ArgumentNullException("Id cannot be null");
+            ArgumentNullException.ThrowIfNull(id);
 
             return await _unitOfWork.TopicRepository.IsExistsAsync(t => t.Id == id && !t.IsDeleted);
         }

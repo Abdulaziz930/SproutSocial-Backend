@@ -180,8 +180,7 @@ namespace SproutSocial.Service.Services.Implementations
 
         public async Task ResetPasswordAsync(string id, ResetPasswordDto resetPasswordDto)
         {
-            if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentNullException("id cannot be null");
+            ArgumentNullException.ThrowIfNull(id);
 
             var user = await _userManager.FindByIdAsync(id);
             if (user is null)
