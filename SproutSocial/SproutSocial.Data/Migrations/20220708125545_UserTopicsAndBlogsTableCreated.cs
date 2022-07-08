@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SproutSocial.Data.Migrations
 {
-    public partial class CreateBlogsTable : Migration
+    public partial class UserTopicsAndBlogsTableCreated : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -33,9 +33,45 @@ namespace SproutSocial.Data.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserTopics",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TopicId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserTopics", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserTopics_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserTopics_Topics_TopicId",
+                        column: x => x.TopicId,
+                        principalTable: "Topics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Blogs_UserId",
                 table: "Blogs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTopics_TopicId",
+                table: "UserTopics",
+                column: "TopicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTopics_UserId",
+                table: "UserTopics",
                 column: "UserId");
         }
 
@@ -43,6 +79,9 @@ namespace SproutSocial.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Blogs");
+
+            migrationBuilder.DropTable(
+                name: "UserTopics");
         }
     }
 }

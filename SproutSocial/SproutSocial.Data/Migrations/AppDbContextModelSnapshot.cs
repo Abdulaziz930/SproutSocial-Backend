@@ -333,7 +333,7 @@ namespace SproutSocial.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserTopic");
+                    b.ToTable("UserTopics");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -12,8 +12,8 @@ using SproutSocial.Data;
 namespace SproutSocial.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220708123348_CreateBlogsTable")]
-    partial class CreateBlogsTable
+    [Migration("20220708125545_UserTopicsAndBlogsTableCreated")]
+    partial class UserTopicsAndBlogsTableCreated
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -335,7 +335,7 @@ namespace SproutSocial.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserTopic");
+                    b.ToTable("UserTopics");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
