@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SproutSocial.Core.Entities;
+using SproutSocial.Service.Dtos.BlogDtos;
 using SproutSocial.Service.Dtos.TopicDtos;
 using SproutSocial.Service.Dtos.UserTopicDtos;
 using SproutSocial.Service.HelperServices.Interfaces;
@@ -24,6 +25,14 @@ namespace SproutSocial.Service.Profiles
             CreateMap<Topic, TopicPostDto>().ReverseMap();
 
             CreateMap<UserTopic, UserTopicDto>().ReverseMap();
+
+            CreateMap<BlogPostDto, Blog>().ForMember(dto => dto.BlogTopics, opt => opt.Ignore()).ReverseMap();
+            CreateMap<Blog, BlogDetailDto>()
+                .ForMember(dest => dest.FilePath, from => from.MapFrom(src => $"{_helperAccessor.BaseUrl}/uploads/blogs/{src.Image}"))
+                .ReverseMap();
+            CreateMap<Blog, BlogListItemDto>()
+                .ForMember(dest => dest.FilePath, from => from.MapFrom(src => $"{_helperAccessor.BaseUrl}/uploads/blogs/{src.Image}"))
+                .ReverseMap();
         }
     }
 }
