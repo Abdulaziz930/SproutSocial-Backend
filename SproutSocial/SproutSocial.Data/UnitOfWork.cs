@@ -13,6 +13,7 @@ namespace SproutSocial.Data
     {
         private readonly AppDbContext _context;
         private ITopicRepository _topicRepository;
+        private IBlogRepository _blogRepository;
 
         public UnitOfWork(AppDbContext context)
         {
@@ -20,6 +21,7 @@ namespace SproutSocial.Data
         }
 
         public ITopicRepository TopicRepository => _topicRepository = _topicRepository ?? new TopicRepository(_context);
+        public IBlogRepository BlogRepository => _blogRepository = _blogRepository ?? new BlogRepository(_context);
 
         public async Task<int> CommitAsync()
         {

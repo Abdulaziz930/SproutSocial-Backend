@@ -10,6 +10,7 @@ namespace SproutSocial.Core
     public interface IUnitOfWork
     {
         ITopicRepository TopicRepository { get; }
+        IBlogRepository BlogRepository { get; }
 
         Task<int> CommitAsync();
     }
