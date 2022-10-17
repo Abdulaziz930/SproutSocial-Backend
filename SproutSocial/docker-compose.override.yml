@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  mssql:
+    container_name: mssql
+    ports:
+      - "1433:1433"
+    volumes:
+      - sproutsocial_database_volume:/var/opt/mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pro247!!
+      - MSSQL_PID=Developer
+  sproutsocial.api:
+    container_name: sproutsocial.api
+    environment:
+       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+       - ASPNETCORE_HTTP_PORT=${ASPNETCORE_HTTP_PORT}
+       - ASPNETCORE_URL=${ASPNETCORE_URL}
+    ports:
+       - "${ASPNETCORE_HTTP_PORT}:80"

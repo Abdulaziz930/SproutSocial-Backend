@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    networks:
+      - network1
+  sproutsocial.api:
+    image: ${DOCKER_REGISTRY-}sproutsocialapi
+    build:
+      context: .
+      dockerfile: src/Presentation/SproutSocial.API/Dockerfile 
+    networks:
+      - network1
+    depends_on:
+      - mssql
+
+volumes:
+  sproutsocial_database_volume:
+
+
+networks:
+  network1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
