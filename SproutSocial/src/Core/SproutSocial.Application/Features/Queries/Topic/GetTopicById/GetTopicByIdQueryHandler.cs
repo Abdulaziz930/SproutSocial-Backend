@@ -1,4 +1,4 @@
-﻿namespace SproutSocial.Application.Features.Queries.GetTopicById;
+﻿namespace SproutSocial.Application.Features.Queries.Topic.GetTopicById;
 
 public class GetTopicByIdQueryHandler : IRequestHandler<GetTopicByIdQueryRequest, GetTopicByIdQueryResponse>
 {

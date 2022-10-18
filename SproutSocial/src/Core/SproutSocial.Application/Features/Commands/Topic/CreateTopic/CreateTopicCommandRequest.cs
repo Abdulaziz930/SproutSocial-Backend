@@ -1,4 +1,4 @@
-﻿namespace SproutSocial.Application.Features.Commands.Product.CreateTopic;
+﻿namespace SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 
 public class CreateTopicCommandRequest : IRequest<CreateTopicCommandResponse>
 {

@@ -1,4 +1,4 @@
-﻿namespace SproutSocial.Application.Features.Queries.GetAllTopics;
+﻿namespace SproutSocial.Application.Features.Queries.Topic.GetAllTopics;
 
 public class GetAllTopicsQueryResponse
 {

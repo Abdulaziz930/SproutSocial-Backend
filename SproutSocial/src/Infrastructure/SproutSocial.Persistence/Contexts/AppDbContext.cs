@@ -1,6 +1,9 @@
-﻿namespace SproutSocial.Persistence.Contexts;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using SproutSocial.Domain.Entities.Identity;
 
-public class AppDbContext : DbContext
+namespace SproutSocial.Persistence.Contexts;
+
+public class AppDbContext : IdentityDbContext<AppUser>
 {
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
 

@@ -1,4 +1,5 @@
-using SproutSocial.API.Extensions;
+using SproutSocial.API.Extensions.ApplicationExtensions;
+using SproutSocial.API.Extensions.ServiceExtensions;
 using SproutSocial.Application;
 using SproutSocial.Infrastructure;
 using SproutSocial.Persistence;
@@ -13,6 +14,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddApiService();
 
+builder.Services.AddJwtAuthenticationService(builder.Configuration["Jwt:Audience"], builder.Configuration["Jwt:Issuer"], builder.Configuration["Jwt:SigningKey"]);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -22,11 +25,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.AddInitializeApplicationService();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.AddMigrationService();
 
 app.MapControllers();
 

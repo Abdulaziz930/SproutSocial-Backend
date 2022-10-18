@@ -1,8 +1,8 @@
-﻿using SproutSocial.Application.Features.Commands.Product.CreateTopic;
+﻿using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 using SproutSocial.Application.Features.Commands.Topic.DeleteTopic;
 using SproutSocial.Application.Features.Commands.Topic.UpdateTopic;
-using SproutSocial.Application.Features.Queries.GetAllTopics;
-using SproutSocial.Application.Features.Queries.GetTopicById;
+using SproutSocial.Application.Features.Queries.Topic.GetAllTopics;
+using SproutSocial.Application.Features.Queries.Topic.GetTopicById;
 
 namespace SproutSocial.API.Controllers;
 

@@ -71,7 +71,7 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
         if (!tracking)
             query = query.AsNoTracking();
 
-        if(Guid.TryParse(id, out var entityId))
+        if (Guid.TryParse(id, out var entityId))
             return await query.FirstOrDefaultAsync(e => e.Id == entityId);
 
         return null;
@@ -89,9 +89,6 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
             }
         }
 
-        if (query != null)  
-            return await query.AnyAsync(expression);
-
-        return false;
+        return await query.AnyAsync(expression);
     }
 }
