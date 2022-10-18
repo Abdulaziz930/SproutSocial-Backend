@@ -10,21 +10,25 @@ builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrasturctureServices();
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddApiVersionService(builder.Configuration["Version"]);
 
 builder.Services.AddApiService();
 
 builder.Services.AddJwtAuthenticationService(builder.Configuration["Jwt:Audience"], builder.Configuration["Jwt:Issuer"], builder.Configuration["Jwt:SigningKey"]);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerService();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint($"/swagger/v1/swagger.json", $"SproutSocial v1");
+        //options.SwaggerEndpoint($"/swagger/v2/swagger.json", $"SproutSocial v2");
+    });
 
     app.AddInitializeApplicationService();
 }

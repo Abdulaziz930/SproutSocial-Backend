@@ -4,6 +4,7 @@ using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 
 namespace SproutSocial.API.Controllers.v1;
 
+[ApiVersion("1")]
 public class UsersController : BaseController
 {
     private readonly IMediator _mediator;

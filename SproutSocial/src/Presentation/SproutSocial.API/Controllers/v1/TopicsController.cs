@@ -6,6 +6,7 @@ using SproutSocial.Application.Features.Queries.Topic.GetTopicById;
 
 namespace SproutSocial.API.Controllers;
 
+[ApiVersion("1")]
 public class TopicsController : BaseController
 {
     private readonly IMediator _mediator;
