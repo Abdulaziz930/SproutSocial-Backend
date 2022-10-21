@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Domain.Entities.Identity;
@@ -17,7 +18,7 @@ public static class ServiceRegistration
         {
             options.UseSqlServer(Configuration.ConnectionString);
         });
-        services.AddIdentity<AppUser, IdentityRole>(options =>
+        services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
         {
             options.User.RequireUniqueEmail = true;
 
@@ -26,7 +27,8 @@ public static class ServiceRegistration
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
             options.Password.RequiredLength = 8;
-        }).AddEntityFrameworkStores<AppDbContext>();
+        }).AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
 
         services.AddScoped<AppDbContextInitializer>();
 

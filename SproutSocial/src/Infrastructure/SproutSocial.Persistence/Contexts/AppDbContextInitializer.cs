@@ -7,10 +7,10 @@ namespace SproutSocial.Persistence.Contexts;
 public class AppDbContextInitializer
 {
     private readonly AppDbContext _context;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly UserManager<AppUser> _userManager;
 
-    public AppDbContextInitializer(AppDbContext context, RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
+    public AppDbContextInitializer(AppDbContext context, RoleManager<IdentityRole<Guid>> roleManager, UserManager<AppUser> userManager)
     {
         _context = context;
         _roleManager = roleManager;
@@ -53,7 +53,7 @@ public class AppDbContextInitializer
         {
             if (_roleManager.Roles.All(r => r.Name != role.ToString()))
             {
-                await _roleManager.CreateAsync(new IdentityRole { Name = role.ToString()});
+                await _roleManager.CreateAsync(new IdentityRole<Guid> { Name = role.ToString()});
             }
         }
 

@@ -1,4 +1,7 @@
-﻿using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
+using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 
@@ -36,5 +39,14 @@ public class UsersController : BaseController
         var response = await _mediator.Send(refreshTokenLoginCommandRequest);
 
         return Ok(response);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("add-topics-to-user")]
+    public async Task<IActionResult> AddTopicUser(AddUserTopicCommandRequest addUserTopicCommand)
+    {
+        var response = await _mediator.Send(addUserTopicCommand);
+
+        return StatusCode((int)response.StatusCode, response?.Message);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Exceptions;
@@ -10,10 +11,42 @@ namespace SproutSocial.Persistence.Services;
 public class UserService : IUserService
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(UserManager<AppUser> userManager)
+    public UserService(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public async Task<AddUserTopicReponseDto> AddUserTopicsAsync(List<string> topicIds)
+    {
+        var userInfo = _httpContextAccessor?.HttpContext?.User?.Identity;
+        if (userInfo?.IsAuthenticated == true)
+        {
+            var user = await _userManager.FindByNameAsync(userInfo.Name);
+            List<UserTopic> userTopics = new();
+
+            foreach (var topicId in topicIds)
+            {
+                userTopics.Add(new()
+                {
+                    TopicId = Guid.Parse(topicId),
+                    AppUserId = user.Id
+                });
+            }
+            user.UserTopics = userTopics;
+
+            await _userManager.UpdateAsync(user);
+
+            return new()
+            {
+                IsSuccess = true,
+                Message = "Topic successfully added to user"
+            };
+        }
+
+        throw new UserNotFoundException("User not authenticated");
     }
 
     public async Task<CreateUserResponseDto> CreateAsync(CreateUserDto model)

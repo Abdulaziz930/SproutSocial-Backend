@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SproutSocial.Domain.Entities.Identity;
 
 namespace SproutSocial.Persistence.Contexts;
 
-public class AppDbContext : IdentityDbContext<AppUser>
+public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 {
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
 
@@ -13,6 +14,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     }
 
     public DbSet<Topic> Topics { get; set; } = null!;
+    public DbSet<UserTopic> UserTopics { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
