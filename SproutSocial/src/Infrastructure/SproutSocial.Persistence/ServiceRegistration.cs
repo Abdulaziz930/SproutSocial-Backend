@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SproutSocial.Application.Abstractions.Common;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Domain.Entities.Identity;
 using SproutSocial.Persistence.Contexts;
@@ -16,6 +17,7 @@ public static class ServiceRegistration
     {
         services.AddDbContext<AppDbContext>(options =>
         {
+            var a = Configuration.ConnectionString;
             options.UseSqlServer(Configuration.ConnectionString);
         });
         services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
@@ -34,7 +36,7 @@ public static class ServiceRegistration
 
         services.AddSingleton(provider => new MapperConfiguration(mc =>
         {
-            mc.AddProfile(new AutoMapperProfile());
+            mc.AddProfile(new AutoMapperProfile(provider.GetService<IBaseUrlAccessor>()));
         }).CreateMapper());
 
         services.AddScoped<ITopicReadRepository, TopicReadRepository>();
@@ -42,6 +44,7 @@ public static class ServiceRegistration
         services.AddScoped<ITopicService, TopicService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IBlogService, BlogService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

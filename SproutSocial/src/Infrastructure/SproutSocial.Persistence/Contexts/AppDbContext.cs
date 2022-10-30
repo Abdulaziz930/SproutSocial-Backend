@@ -15,6 +15,9 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 
     public DbSet<Topic> Topics { get; set; } = null!;
     public DbSet<UserTopic> UserTopics { get; set; } = null!;
+    public DbSet<Blog> Blogs { get; set; } = null!;
+    public DbSet<BlogTopic> BlogTopics { get; set; } = null!;
+    public DbSet<BlogImage> BlogImages { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

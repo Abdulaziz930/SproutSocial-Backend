@@ -15,7 +15,8 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(RecordAlreadyExistException), HandleRecordAlreadyExistException},
             { typeof(AuthenticationFailException), HandleAuthenticationFailException},
             { typeof(UserCreateFailedException), HandleUserCreateFailedException},
-            { typeof(UserNotFoundException), HandleUserNotFoundException}
+            { typeof(UserNotFoundException), HandleUserNotFoundException},
+            { typeof(ArgumentNullException), HandleArgumentException},
         };
     }
 
@@ -118,6 +119,21 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         };
 
         context.Result = new UnauthorizedObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleArgumentException(ExceptionContext context)
+    {
+        var exception = (UserNotFoundException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "Argument cannot be null",
+            Detail = exception.Message
+        };
+
+        context.Result = new BadRequestObjectResult(details);
 
         context.ExceptionHandled = true;
     }

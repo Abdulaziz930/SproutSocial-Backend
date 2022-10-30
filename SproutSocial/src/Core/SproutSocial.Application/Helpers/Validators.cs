@@ -1,4 +1,6 @@
-﻿namespace SproutSocial.Application.Helpers;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace SproutSocial.Application.Helpers;
 
 public static class Validators
 {
@@ -6,4 +8,14 @@ public static class Validators
     {
         return Guid.TryParse(id, out var topicId);
     }
+    public static bool IsImage(IFormFile formFile)
+    {
+        return formFile.ContentType.Contains("image/");
+    }
+
+    public static bool IsSizeAllowed(IFormFile formFile, int kb)
+    {
+        return formFile.Length < kb * 1000;
+    }
+
 }

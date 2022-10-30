@@ -9,4 +9,5 @@ public class AppUser : IdentityUser<Guid>
     public DateTime? RefreshTokenEndDate { get; set; }
 
     public ICollection<UserTopic>? UserTopics { get; set; }
+    public ICollection<Blog>? Blogs { get; set; }
 }

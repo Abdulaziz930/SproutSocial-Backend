@@ -153,6 +153,95 @@ namespace SproutSocial.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SproutSocial.Domain.Entities.Blog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Storage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId")
+                        .IsUnique();
+
+                    b.ToTable("BlogImages");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogTopic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("TopicId");
+
+                    b.ToTable("BlogTopics");
+                });
+
             modelBuilder.Entity("SproutSocial.Domain.Entities.Identity.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -330,6 +419,47 @@ namespace SproutSocial.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SproutSocial.Domain.Entities.Blog", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Identity.AppUser", "AppUser")
+                        .WithMany("Blogs")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogImage", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Blog", "Blog")
+                        .WithOne("BlogImage")
+                        .HasForeignKey("SproutSocial.Domain.Entities.BlogImage", "BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogTopic", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Blog", "Blog")
+                        .WithMany("BlogTopics")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SproutSocial.Domain.Entities.Topic", "Topic")
+                        .WithMany("BlogTopics")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("Topic");
+                });
+
             modelBuilder.Entity("SproutSocial.Domain.Entities.UserTopic", b =>
                 {
                     b.HasOne("SproutSocial.Domain.Entities.Identity.AppUser", "AppUser")
@@ -349,13 +479,25 @@ namespace SproutSocial.Persistence.Migrations
                     b.Navigation("Topic");
                 });
 
+            modelBuilder.Entity("SproutSocial.Domain.Entities.Blog", b =>
+                {
+                    b.Navigation("BlogImage")
+                        .IsRequired();
+
+                    b.Navigation("BlogTopics");
+                });
+
             modelBuilder.Entity("SproutSocial.Domain.Entities.Identity.AppUser", b =>
                 {
+                    b.Navigation("Blogs");
+
                     b.Navigation("UserTopics");
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.Topic", b =>
                 {
+                    b.Navigation("BlogTopics");
+
                     b.Navigation("UserTopics");
                 });
 #pragma warning restore 612, 618
