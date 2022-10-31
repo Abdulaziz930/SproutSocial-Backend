@@ -16,7 +16,8 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(AuthenticationFailException), HandleAuthenticationFailException},
             { typeof(UserCreateFailedException), HandleUserCreateFailedException},
             { typeof(UserNotFoundException), HandleUserNotFoundException},
-            { typeof(ArgumentNullException), HandleArgumentException},
+            { typeof(PageFormatException), HandlePageFormatException},
+            { typeof(ArgumentNullException), HandleArgumentException}
         };
     }
 
@@ -125,11 +126,26 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
     private void HandleArgumentException(ExceptionContext context)
     {
-        var exception = (UserNotFoundException)context.Exception;
+        var exception = (ArgumentNullException)context.Exception;
 
         var details = new ProblemDetails()
         {
             Title = "Argument cannot be null",
+            Detail = exception.Message
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandlePageFormatException(ExceptionContext context)
+    {
+        var exception = (PageFormatException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "Wrong page format",
             Detail = exception.Message
         };
 
