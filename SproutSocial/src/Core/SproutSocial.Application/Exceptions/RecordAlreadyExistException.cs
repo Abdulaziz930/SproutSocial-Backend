@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Application.Exceptions;
 
-public class RecordAlreadyExistException : Exception
+public sealed class RecordAlreadyExistException : Exception
 {
     public RecordAlreadyExistException() : base("Entity already exist")
     {

@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Application.Exceptions;
 
-public class UserNotFoundException : Exception
+public sealed class UserNotFoundException : Exception
 {
     public UserNotFoundException() : base("Username or password invalid")
     {

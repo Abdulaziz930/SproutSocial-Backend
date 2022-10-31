@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Application.Exceptions;
 
-public class AuthenticationFailException : Exception
+public sealed class AuthenticationFailException : Exception
 {
     public AuthenticationFailException() : base("Username or password incorrect")
     {

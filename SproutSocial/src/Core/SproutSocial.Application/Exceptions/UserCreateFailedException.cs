@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Application.Exceptions;
 
-public class UserCreateFailedException : Exception
+public sealed class UserCreateFailedException : Exception
 {
     public UserCreateFailedException() : base("Unexpected error occurred while creating user")
     {
