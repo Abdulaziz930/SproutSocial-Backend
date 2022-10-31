@@ -70,6 +70,8 @@ public class BlogService : IBlogService
 
     public async Task<PagenatedListDto<BlogDto>> GetAllBlogsAsync(int page)
     {
+        if (page < 1) throw new PageFormatException();
+
         var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic").ToListAsync();
         if (blogs == null || blogs.Count == 0)
             throw new NotFoundException("There is no any blog items");

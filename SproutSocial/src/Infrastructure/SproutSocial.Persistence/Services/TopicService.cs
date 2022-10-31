@@ -51,6 +51,8 @@ public class TopicService : ITopicService
 
     public async Task<PagenatedListDto<TopicDto>> GetAllTopicsAsync(int page)
     {
+        if (page < 1) throw new PageFormatException();
+
         var topics = await _unitOfWork.TopicReadRepository.GetFiltered(t => !t.IsDeleted, page, 5,tracking: false).ToListAsync();
         if (topics is null)
             throw new NotFoundException("There is no any topic data");
