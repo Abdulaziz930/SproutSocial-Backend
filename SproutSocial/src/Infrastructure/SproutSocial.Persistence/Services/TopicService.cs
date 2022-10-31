@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SproutSocial.Application.Abstractions.Services;
+using SproutSocial.Application.DTOs.Common;
 using SproutSocial.Application.DTOs.TopicDtos;
 using SproutSocial.Application.Exceptions;
 
@@ -48,14 +49,19 @@ public class TopicService : ITopicService
         return true;
     }
 
-    public async Task<List<TopicDto>> GetAllTopicsAsync()
+    public async Task<PagenatedListDto<TopicDto>> GetAllTopicsAsync(int page)
     {
-        var topics = await _unitOfWork.TopicReadRepository.GetFiltered(t => !t.IsDeleted, tracking: false).ToListAsync();
+        var topics = await _unitOfWork.TopicReadRepository.GetFiltered(t => !t.IsDeleted, page, 5,tracking: false).ToListAsync();
         if (topics is null)
             throw new NotFoundException("There is no any topic data");
 
-        List<TopicDto> topicDtos = _mapper.Map<List<TopicDto>>(topics);
-        return topicDtos;
+        var topicsCount = await _unitOfWork.TopicReadRepository.GetTotalCountAsync(t => !t.IsDeleted);
+
+        IEnumerable<TopicDto> topicDtos = _mapper.Map<IEnumerable<TopicDto>>(topics);
+
+        PagenatedListDto<TopicDto> pagenatedListDto = new(topicDtos, topicsCount, page, 5);
+
+        return pagenatedListDto;
     }
 
     public async Task<TopicDto> GetTopicByIdAsync(string id)

@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Application.Features.Queries.Blog.GetAllBlogs;
 
-public class GetAllBlogsQueryHandler : IRequestHandler<GetAllBlogsQueryRequest, List<GetAllBlogsQueryResponse>>
+public class GetAllBlogsQueryHandler : IRequestHandler<GetAllBlogsQueryRequest, GetAllBlogsQueryResponse>
 {
     private readonly IBlogService _blogService;
     private readonly IMapper _mapper;
@@ -11,11 +11,11 @@ public class GetAllBlogsQueryHandler : IRequestHandler<GetAllBlogsQueryRequest, 
         _mapper = mapper;
     }
 
-    public async Task<List<GetAllBlogsQueryResponse>> Handle(GetAllBlogsQueryRequest request, CancellationToken cancellationToken)
+    public async Task<GetAllBlogsQueryResponse> Handle(GetAllBlogsQueryRequest request, CancellationToken cancellationToken)
     {
-        var blogsDto = await _blogService.GetAllBlogsAsync();
+        var blogsDto = await _blogService.GetAllBlogsAsync(request.Page);
 
-        var blogs = _mapper.Map<List<GetAllBlogsQueryResponse>>(blogsDto);
+        var blogs = _mapper.Map<GetAllBlogsQueryResponse>(blogsDto);
 
         return blogs;
     }

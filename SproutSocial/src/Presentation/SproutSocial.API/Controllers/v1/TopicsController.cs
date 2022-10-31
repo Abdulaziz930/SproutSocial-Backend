@@ -17,10 +17,9 @@ public class TopicsController : BaseController
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] GetAllTopicsQueryRequest getAllTopicsQueryRequest)
     {
-        var response = await _mediator.Send(new GetAllTopicsQueryRequest());
-        return Ok(response.Topics);
+        return Ok(await _mediator.Send(getAllTopicsQueryRequest));
     }
 
     [HttpGet("{id}")]

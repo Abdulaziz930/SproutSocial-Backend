@@ -27,7 +27,7 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
         return !tracking ? query.AsNoTracking() : query;
     }
 
-    public IQueryable<T> GetFiltered(Expression<Func<T, bool>> filter, bool tracking = true, params string[] includes)
+    public IQueryable<T> GetFiltered(Expression<Func<T, bool>> filter, int pageIndex, int pageSize, bool tracking = true, params string[] includes)
     {
         var query = Table.Where(filter);
         if (includes != null && includes.Length > 0)
@@ -37,6 +37,8 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
                 query = query.Include(item);
             }
         }
+
+        query = query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
         return !tracking ? query.AsNoTracking() : query;
     }
@@ -90,5 +92,20 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
         }
 
         return await query.AnyAsync(expression);
+    }
+
+    public async Task<int> GetTotalCountAsync(Expression<Func<T, bool>> expression, params string[] includes)
+    {
+        var query = Table.AsQueryable();
+
+        if (includes != null && includes.Length > 0)
+        {
+            foreach (var item in includes)
+            {
+                query = query.Include(item);
+            }
+        }
+
+        return await query.AsNoTracking().CountAsync(expression);
     }
 }

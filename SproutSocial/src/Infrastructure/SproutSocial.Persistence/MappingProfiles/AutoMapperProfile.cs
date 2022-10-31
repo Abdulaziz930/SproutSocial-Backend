@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SproutSocial.Application.Abstractions.Common;
 using SproutSocial.Application.DTOs.BlogDtos;
+using SproutSocial.Application.DTOs.Common;
 using SproutSocial.Application.DTOs.TopicDtos;
 using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
@@ -11,6 +12,7 @@ using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 using SproutSocial.Application.Features.Commands.Topic.UpdateTopic;
 using SproutSocial.Application.Features.Queries.Blog.GetAllBlogs;
 using SproutSocial.Application.Features.Queries.Blog.GetBlogById;
+using SproutSocial.Application.Features.Queries.Topic.GetAllTopics;
 
 namespace SproutSocial.Persistence.MappingProfiles;
 
@@ -24,6 +26,8 @@ public class AutoMapperProfile : Profile
 
         CreateMap<Topic, CreateTopicDto>().ReverseMap();
         CreateMap<Topic, TopicDto>().ReverseMap();
+        CreateMap<PagenatedListDto<TopicDto>, GetAllTopicsQueryResponse>()
+            .ForMember(dest => dest.Topics, from => from.MapFrom(src => src.Items)).ReverseMap();
 
         CreateMap<CreateTopicDto, CreateTopicCommandRequest>().ReverseMap();
         CreateMap<UpdateTopicDto, UpdateTopicCommandRequest>().ReverseMap();
@@ -41,5 +45,7 @@ public class AutoMapperProfile : Profile
         CreateMap<BlogDto, GetAllBlogsQueryResponse>().ReverseMap();
         CreateMap<BlogDto, GetBlogByIdQueryResponse>().ReverseMap();
         CreateMap<UpdateBlogDto, UpdateBlogCommandRequest>().ReverseMap();
+        CreateMap<PagenatedListDto<BlogDto>, GetAllBlogsQueryResponse>()
+            .ForMember(dest => dest.Blogs, from => from.MapFrom(src => src.Items)).ReverseMap();
     }
 }

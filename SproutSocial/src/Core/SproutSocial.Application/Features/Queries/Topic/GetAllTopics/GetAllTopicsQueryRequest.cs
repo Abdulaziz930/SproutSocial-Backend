@@ -2,4 +2,5 @@
 
 public class GetAllTopicsQueryRequest : IRequest<GetAllTopicsQueryResponse>
 {
+    public int Page { get; set; }
 }

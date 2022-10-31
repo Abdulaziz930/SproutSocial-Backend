@@ -21,9 +21,9 @@ namespace SproutSocial.API.Controllers.v1
 
         [HttpGet("")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllBlogs()
+        public async Task<IActionResult> GetAllBlogs([FromQuery] GetAllBlogsQueryRequest getAllBlogsQueryRequest)
         {
-            return Ok(await _mediator.Send(new GetAllBlogsQueryRequest()));
+            return Ok(await _mediator.Send(getAllBlogsQueryRequest));
         }
 
         [HttpGet("{id}")]

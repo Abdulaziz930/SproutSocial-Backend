@@ -3,19 +3,20 @@
 public class GetAllTopicsQueryHandler : IRequestHandler<GetAllTopicsQueryRequest, GetAllTopicsQueryResponse>
 {
     private readonly ITopicService _topicService;
+    private readonly IMapper _mapper;
 
-    public GetAllTopicsQueryHandler(ITopicService topicService)
+    public GetAllTopicsQueryHandler(ITopicService topicService, IMapper mapper)
     {
         _topicService = topicService;
+        _mapper = mapper;
     }
 
     public async Task<GetAllTopicsQueryResponse> Handle(GetAllTopicsQueryRequest request, CancellationToken cancellationToken)
     {
-        var topics = await _topicService.GetAllTopicsAsync();
+        var topicsDto = await _topicService.GetAllTopicsAsync(request.Page);
 
-        return new()
-        {
-            Topics = topics,
-        };
+        var topics = _mapper.Map<GetAllTopicsQueryResponse>(topicsDto);
+
+        return topics;
     }
 }

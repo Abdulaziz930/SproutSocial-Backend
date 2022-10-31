@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Abstractions.Storage;
 using SproutSocial.Application.DTOs.BlogDtos;
+using SproutSocial.Application.DTOs.Common;
 using SproutSocial.Application.Exceptions;
 using SproutSocial.Domain.Entities.Identity;
 
@@ -67,14 +68,19 @@ public class BlogService : IBlogService
         return result;
     }
 
-    public async Task<List<BlogDto>> GetAllBlogsAsync()
+    public async Task<PagenatedListDto<BlogDto>> GetAllBlogsAsync(int page)
     {
-        var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !b.IsDeleted, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic").ToListAsync();
+        var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic").ToListAsync();
         if (blogs == null || blogs.Count == 0)
             throw new NotFoundException("There is no any blog items");
 
-        var blogsDto = _mapper.Map<List<BlogDto>>(blogs);
-        return blogsDto;
+        var blogsCount = await _unitOfWork.BlogReadRepository.GetTotalCountAsync(b => !b.IsDeleted);
+
+        var blogsDto = _mapper.Map<IEnumerable<BlogDto>>(blogs);
+
+        PagenatedListDto<BlogDto> pagenatedListDto = new(blogsDto, blogsCount, page, 5);
+
+        return pagenatedListDto;
     }
 
     public async Task<BlogDto> GetBlogByIdAsync(string id)
