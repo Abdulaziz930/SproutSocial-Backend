@@ -13,7 +13,7 @@ public class GetAllBlogsQueryHandler : IRequestHandler<GetAllBlogsQueryRequest, 
 
     public async Task<GetAllBlogsQueryResponse> Handle(GetAllBlogsQueryRequest request, CancellationToken cancellationToken)
     {
-        var blogsDto = await _blogService.GetAllBlogsAsync(request.Page);
+        var blogsDto = await _blogService.GetAllBlogsAsync(request.Page, request.Search);
 
         var blogs = _mapper.Map<GetAllBlogsQueryResponse>(blogsDto);
 

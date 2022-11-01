@@ -68,15 +68,15 @@ public class BlogService : IBlogService
         return result;
     }
 
-    public async Task<PagenatedListDto<BlogDto>> GetAllBlogsAsync(int page)
+    public async Task<PagenatedListDto<BlogDto>> GetAllBlogsAsync(int page, string? search)
     {
         if (page < 1) throw new PageFormatException();
 
-        var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic").ToListAsync();
+        var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic").ToListAsync();
         if (blogs == null || blogs.Count == 0)
             throw new NotFoundException("There is no any blog items");
 
-        var blogsCount = await _unitOfWork.BlogReadRepository.GetTotalCountAsync(b => !b.IsDeleted);
+        var blogsCount = await _unitOfWork.BlogReadRepository.GetTotalCountAsync(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted);
 
         var blogsDto = _mapper.Map<IEnumerable<BlogDto>>(blogs);
 
