@@ -3,4 +3,5 @@
 public class GetAllTopicsQueryRequest : IRequest<GetAllTopicsQueryResponse>
 {
     public int Page { get; set; }
+    public string? Search { get; set; }
 }

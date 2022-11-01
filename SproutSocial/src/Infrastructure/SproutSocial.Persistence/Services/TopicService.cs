@@ -49,15 +49,15 @@ public class TopicService : ITopicService
         return true;
     }
 
-    public async Task<PagenatedListDto<TopicDto>> GetAllTopicsAsync(int page)
+    public async Task<PagenatedListDto<TopicDto>> GetAllTopicsAsync(int page, string? search)
     {
         if (page < 1) throw new PageFormatException();
 
-        var topics = await _unitOfWork.TopicReadRepository.GetFiltered(t => !t.IsDeleted, page, 5,tracking: false).ToListAsync();
+        var topics = await _unitOfWork.TopicReadRepository.GetFiltered(t => !string.IsNullOrWhiteSpace(search) ? t.Name.ToLower().Contains(search.ToLower()) : true && !t.IsDeleted, page, 5,tracking: false).ToListAsync();
         if (topics is null)
             throw new NotFoundException("There is no any topic data");
 
-        var topicsCount = await _unitOfWork.TopicReadRepository.GetTotalCountAsync(t => !t.IsDeleted);
+        var topicsCount = await _unitOfWork.TopicReadRepository.GetTotalCountAsync(t => !string.IsNullOrWhiteSpace(search) ? t.Name.ToLower().Contains(search.ToLower()) : true && !t.IsDeleted);
 
         IEnumerable<TopicDto> topicDtos = _mapper.Map<IEnumerable<TopicDto>>(topics);
 

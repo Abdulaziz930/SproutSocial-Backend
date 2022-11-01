@@ -13,7 +13,7 @@ public class GetAllTopicsQueryHandler : IRequestHandler<GetAllTopicsQueryRequest
 
     public async Task<GetAllTopicsQueryResponse> Handle(GetAllTopicsQueryRequest request, CancellationToken cancellationToken)
     {
-        var topicsDto = await _topicService.GetAllTopicsAsync(request.Page);
+        var topicsDto = await _topicService.GetAllTopicsAsync(request.Page, request.Search);
 
         var topics = _mapper.Map<GetAllTopicsQueryResponse>(topicsDto);
 
