@@ -36,20 +36,20 @@ public class TopicsController : BaseController
     public async Task<IActionResult> Create(CreateTopicCommandRequest topic)
     {
         var response = await _mediator.Send(topic);
-        return StatusCode((int)response.StatusCode, response.Message);
+        return StatusCode((int)response.StatusCode, response);
     }
 
     [HttpPut("")]
     public async Task<IActionResult> Update(UpdateTopicCommandRequest topic)
     {
         var response = await _mediator.Send(topic);
-        return StatusCode((int)response.StatusCode, response.Message);
+        return StatusCode((int)response.StatusCode, response);
     }
 
     [HttpDelete("")]
     public async Task<IActionResult> Delete(DeleteTopicCommandRequest topic)
     {
         var response = await _mediator.Send(topic);
-        return StatusCode((int)response.StatusCode, response.Message);
+        return StatusCode((int)response.StatusCode, response);
     }
 }
