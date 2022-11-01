@@ -38,7 +38,7 @@ namespace SproutSocial.API.Controllers.v1
         {
             var response = await _mediator.Send(createBlogCommandRequest);
 
-            return StatusCode((int)response.StatusCode, response.Message);
+            return StatusCode((int)response.StatusCode, response);
         }
 
         [HttpPut("")]
@@ -46,7 +46,7 @@ namespace SproutSocial.API.Controllers.v1
         {
             var response = await _mediator.Send(updateBlogCommandRequest);
 
-            return StatusCode((int)response.StatusCode, response.Message);
+            return StatusCode((int)response.StatusCode, response);
         }
 
         [HttpDelete("{id}")]
@@ -54,7 +54,7 @@ namespace SproutSocial.API.Controllers.v1
         {
             var response = await _mediator.Send(deleteBlogCommandRequest);
 
-            return StatusCode((int)response.StatusCode, response.Message);
+            return StatusCode((int)response.StatusCode, response);
         }
     }
 }
