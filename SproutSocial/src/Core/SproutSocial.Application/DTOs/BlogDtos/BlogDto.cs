@@ -10,4 +10,6 @@ public class BlogDto
     public string Image { get; set; } = null!;
     public UserInfoDto? UserInfo { get; set; }
     public List<TopicDto>? Topics { get; set; }
+    public List<BlogLikeDto>? Likes { get; set; }
+    public int LikeCount { get; set; }
 }

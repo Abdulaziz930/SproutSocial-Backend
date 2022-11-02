@@ -10,4 +10,6 @@ public class GetBlogByIdQueryResponse
     public string Image { get; set; } = null!;
     public UserInfoDto UserInfo { get; set; } = null!;
     public List<TopicDto> Topics { get; set; } = null!;
+    public List<BlogLikeDto>? Likes { get; set; }
+    public int LikeCount { get; set; }
 }

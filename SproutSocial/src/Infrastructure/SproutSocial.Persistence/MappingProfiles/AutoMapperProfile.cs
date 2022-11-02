@@ -41,6 +41,12 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Topics, from => from.MapFrom(src => src.BlogTopics.Select(x => x.Topic).ToList()))
             .ForPath(dest => dest.UserInfo.Id, from => from.MapFrom(src => src.AppUser.Id))
             .ForPath(dest => dest.UserInfo.UserName, from => from.MapFrom(src => src.AppUser.UserName))
+            .ForMember(dest => dest.LikeCount, from => from.MapFrom(src => src.BlogLikes.Count()))
+            .ForPath(dest => dest.Likes, from => from.MapFrom(src => src.BlogLikes.Select(x => new BlogLikeDto
+            {
+                UserName = x.AppUser.UserName,
+                UserId = x.AppUser.Id
+            })))
             .ReverseMap();
         CreateMap<BlogDto, GetAllBlogsQueryResponse>().ReverseMap();
         CreateMap<BlogDto, GetBlogByIdQueryResponse>().ReverseMap();

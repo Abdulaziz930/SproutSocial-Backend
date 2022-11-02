@@ -72,7 +72,7 @@ public class BlogService : IBlogService
     {
         if (page < 1) throw new PageFormatException();
 
-        var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic").ToListAsync();
+        var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic", "BlogLikes.AppUser").ToListAsync();
         if (blogs == null || blogs.Count == 0)
             throw new NotFoundException("There is no any blog items");
 
@@ -89,7 +89,7 @@ public class BlogService : IBlogService
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic");
+        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic", "BlogLikes.AppUser");
         if(blog == null)
             throw new NotFoundException($"Blog not found with id: {id}");
 
