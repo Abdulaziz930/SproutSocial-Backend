@@ -143,7 +143,7 @@ public class BlogService : IBlogService
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true, "AppUser", "BlogImage", "BlogTopics.Topic");
+        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true);
         if (blog == null)
             throw new NotFoundException($"Blog not found with id: {id}");
 
