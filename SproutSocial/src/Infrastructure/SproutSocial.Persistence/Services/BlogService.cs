@@ -153,4 +153,61 @@ public class BlogService : IBlogService
 
         return true;
     }
+
+    public async Task<bool> LikeBlogAsync(string id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        var user = _httpContextAccessor.HttpContext.User.Identity;
+        if (!user.IsAuthenticated)
+            throw new AuthenticationFailException("Please login to like any post");
+
+        var dbUser = await _userManager.FindByNameAsync(user.Name);
+        if (dbUser is null)
+            throw new UserNotFoundException($"User not found by name: {user.Name}");
+
+        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true);
+        if (blog is null)
+            throw new NotFoundException($"Blog not found with id: {id}");
+
+        BlogLike blogLike = new()
+        {
+            BlogId = blog.Id,
+            AppUserId = dbUser.Id
+        };
+
+        blog.BlogLikes = blog.BlogLikes ?? new List<BlogLike>();
+        blog.BlogLikes.Add(blogLike);
+
+        var result = _unitOfWork.BlogWriteRepository.Update(blog);
+        await _unitOfWork.SaveAsync();
+
+        return result;
+    }
+
+    public async Task<bool> UnLikeBlogAsync(string id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        var user = _httpContextAccessor.HttpContext.User.Identity;
+        if (!user.IsAuthenticated)
+            throw new AuthenticationFailException("Please login to like any post");
+
+        var dbUser = await _userManager.FindByNameAsync(user.Name);
+        if (dbUser is null)
+            throw new UserNotFoundException($"User not found by name: {user.Name}");
+
+        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true, "BlogLikes");
+        if (blog is null)
+            throw new NotFoundException($"Blog not found with id: {id}");
+
+        var likedBlog = blog.BlogLikes.FirstOrDefault(b => b.BlogId == Guid.Parse(id) && b.AppUserId == dbUser.Id);
+
+        blog.BlogLikes.Remove(likedBlog);
+
+        var result = _unitOfWork.BlogWriteRepository.Update(blog);
+        await _unitOfWork.SaveAsync();
+
+        return result;
+    }
 }

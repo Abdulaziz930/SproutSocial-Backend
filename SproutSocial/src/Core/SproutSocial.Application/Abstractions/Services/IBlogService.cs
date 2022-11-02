@@ -9,4 +9,6 @@ public interface IBlogService
     Task<bool> CreateBlogAsync(CreateBlogDto blog);
     Task<bool> UpdateBlogAsync(string id, UpdateBlogDto blog);
     Task<bool> DeleteBlogAsync(string id);
+    Task<bool> LikeBlogAsync(string id);
+    Task<bool> UnLikeBlogAsync(string id);
 }
