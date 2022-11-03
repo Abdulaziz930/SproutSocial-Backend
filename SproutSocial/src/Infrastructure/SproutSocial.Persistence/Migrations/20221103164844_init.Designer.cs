@@ -12,8 +12,8 @@ using SproutSocial.Persistence.Contexts;
 namespace SproutSocial.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20221021083535_AddBlogTables")]
-    partial class AddBlogTables
+    [Migration("20221103164844_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -166,7 +166,8 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -174,12 +175,10 @@ namespace SproutSocial.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
@@ -189,13 +188,73 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Blogs", (string)null);
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Storage")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId")
+                        .IsUnique();
+
+                    b.ToTable("BlogImages", (string)null);
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogLike", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("BlogId");
+
+                    b.ToTable("BlogLikes");
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.BlogTopic", b =>
@@ -216,7 +275,50 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("TopicId");
 
-                    b.ToTable("BlogTopics");
+                    b.ToTable("BlogTopics", (string)null);
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("BlogId");
+
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.Identity.AppUser", b =>
@@ -294,6 +396,49 @@ namespace SproutSocial.Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SproutSocial.Domain.Entities.SubComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("SubComments");
+                });
+
             modelBuilder.Entity("SproutSocial.Domain.Entities.Topic", b =>
                 {
                     b.Property<Guid>("Id")
@@ -307,7 +452,9 @@ namespace SproutSocial.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
@@ -317,11 +464,12 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Topics");
+                    b.ToTable("Topics", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.UserTopic", b =>
@@ -407,6 +555,36 @@ namespace SproutSocial.Persistence.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogImage", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Blog", "Blog")
+                        .WithOne("BlogImage")
+                        .HasForeignKey("SproutSocial.Domain.Entities.BlogImage", "BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.BlogLike", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Identity.AppUser", "AppUser")
+                        .WithMany("BlogLikes")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SproutSocial.Domain.Entities.Blog", "Blog")
+                        .WithMany("BlogLikes")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Blog");
+                });
+
             modelBuilder.Entity("SproutSocial.Domain.Entities.BlogTopic", b =>
                 {
                     b.HasOne("SproutSocial.Domain.Entities.Blog", "Blog")
@@ -424,6 +602,44 @@ namespace SproutSocial.Persistence.Migrations
                     b.Navigation("Blog");
 
                     b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.Comment", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Identity.AppUser", "AppUser")
+                        .WithMany("Comments")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SproutSocial.Domain.Entities.Blog", "Blog")
+                        .WithMany("Comments")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Blog");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.SubComment", b =>
+                {
+                    b.HasOne("SproutSocial.Domain.Entities.Identity.AppUser", "AppUser")
+                        .WithMany("SubComments")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SproutSocial.Domain.Entities.Comment", "Comment")
+                        .WithMany("SubComments")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Comment");
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.UserTopic", b =>
@@ -447,12 +663,30 @@ namespace SproutSocial.Persistence.Migrations
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.Blog", b =>
                 {
+                    b.Navigation("BlogImage")
+                        .IsRequired();
+
+                    b.Navigation("BlogLikes");
+
                     b.Navigation("BlogTopics");
+
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("SproutSocial.Domain.Entities.Comment", b =>
+                {
+                    b.Navigation("SubComments");
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.Identity.AppUser", b =>
                 {
+                    b.Navigation("BlogLikes");
+
                     b.Navigation("Blogs");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("SubComments");
 
                     b.Navigation("UserTopics");
                 });

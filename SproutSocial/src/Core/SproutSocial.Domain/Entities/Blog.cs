@@ -12,4 +12,5 @@ public class Blog : BaseAuditableEntity
     public BlogImage BlogImage { get; set; } = null!;
     public ICollection<BlogTopic>? BlogTopics { get; set; }
     public ICollection<BlogLike>? BlogLikes { get; set; }
+    public ICollection<Comment>? Comments { get; set; }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SproutSocial.Domain.Entities.Identity;
+using SproutSocial.Persistence.Configurations;
 
 namespace SproutSocial.Persistence.Contexts;
 
@@ -19,10 +20,18 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<BlogTopic> BlogTopics { get; set; } = null!;
     public DbSet<BlogImage> BlogImages { get; set; } = null!;
     public DbSet<BlogLike> BlogLikes { get; set; } = null!;
+    public DbSet<Comment> Comments { get; set; } = null!;
+    public DbSet<SubComment> SubComments { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
         base.OnConfiguring(optionsBuilder);
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.ApplyConfigurationsFromAssembly(typeof(BlogConfiguration).Assembly);
+        base.OnModelCreating(builder);
     }
 }
