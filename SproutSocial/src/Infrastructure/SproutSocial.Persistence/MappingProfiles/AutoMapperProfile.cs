@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SproutSocial.Application.Abstractions.Common;
 using SproutSocial.Application.DTOs.BlogDtos;
+using SproutSocial.Application.DTOs.CommentDtos;
 using SproutSocial.Application.DTOs.Common;
 using SproutSocial.Application.DTOs.TopicDtos;
 using SproutSocial.Application.DTOs.UserDtos;
@@ -8,10 +9,12 @@ using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 using SproutSocial.Application.Features.Commands.Blog.UpdateBlog;
+using SproutSocial.Application.Features.Commands.Comment.PostComment;
 using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 using SproutSocial.Application.Features.Commands.Topic.UpdateTopic;
 using SproutSocial.Application.Features.Queries.Blog.GetAllBlogs;
 using SproutSocial.Application.Features.Queries.Blog.GetBlogById;
+using SproutSocial.Application.Features.Queries.Comment.GetComments;
 using SproutSocial.Application.Features.Queries.Topic.GetAllTopics;
 
 namespace SproutSocial.Persistence.MappingProfiles;
@@ -53,5 +56,22 @@ public class AutoMapperProfile : Profile
         CreateMap<UpdateBlogDto, UpdateBlogCommandRequest>().ReverseMap();
         CreateMap<PagenatedListDto<BlogDto>, GetAllBlogsQueryResponse>()
             .ForMember(dest => dest.Blogs, from => from.MapFrom(src => src.Items)).ReverseMap();
+
+        CreateMap<Comment, CommentDto>()
+            .ForPath(dest => dest.UserInfo.Id, from => from.MapFrom(src => src.AppUser.Id))
+            .ForPath(dest => dest.UserInfo.UserName, from => from.MapFrom(src => src.AppUser.UserName))
+            .ForPath(dest => dest.SubComments, from => from.MapFrom(src => src.SubComments.Where(sc => !sc.IsDeleted).Select(x => new SubCommentDto
+            {
+                Id = x.Id,
+                Message = x.Message,
+                UserInfo = new()
+                {
+                    Id = x.AppUser.Id,
+                    UserName = x.AppUser.UserName
+                }
+            }))).ReverseMap();
+        CreateMap<PostCommentCommandRequest, PostCommentDto>().ReverseMap();
+        CreateMap<PagenatedListDto<CommentDto>, GetCommentsQueryResponse>()
+            .ForMember(dest => dest.Comments, from => from.MapFrom(src => src.Items)).ReverseMap();
     }
 }

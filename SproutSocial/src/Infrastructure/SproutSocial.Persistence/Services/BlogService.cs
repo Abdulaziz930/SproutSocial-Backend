@@ -90,7 +90,7 @@ public class BlogService : IBlogService
         ArgumentNullException.ThrowIfNull(id);
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic", "BlogLikes.AppUser");
-        if(blog == null)
+        if (blog == null)
             throw new NotFoundException($"Blog not found with id: {id}");
 
         var blogDto = _mapper.Map<BlogDto>(blog);
@@ -105,7 +105,7 @@ public class BlogService : IBlogService
         if (dbBlog == null)
             throw new NotFoundException($"Blog not found with id: {id}");
 
-        if(blog.FormFile != null)
+        if (blog.FormFile != null)
         {
             _storageService.Delete("blog-images", dbBlog.BlogImage.FileName);
 
@@ -116,7 +116,7 @@ public class BlogService : IBlogService
             dbBlog.BlogImage.Storage = _storageService.StorageName;
         }
 
-        if(blog.TopicIds != null && blog.TopicIds.Count != 0)
+        if (blog.TopicIds != null && blog.TopicIds.Count != 0)
         {
             List<BlogTopic> blogTopics = new();
             foreach (var topicId in blog.TopicIds)

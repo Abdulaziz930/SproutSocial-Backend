@@ -8,6 +8,8 @@ public interface IUnitOfWork
     ITopicWriteRepository TopicWriteRepository { get; }
     IBlogReadRepository BlogReadRepository { get; }
     IBlogWriteRepository BlogWriteRepository { get; }
+    ICommentReadRepository CommentReadRepository { get; }
+    ICommentWriteRepository CommentWriteRepository { get; }
 
     Task<int> SaveAsync();
 }

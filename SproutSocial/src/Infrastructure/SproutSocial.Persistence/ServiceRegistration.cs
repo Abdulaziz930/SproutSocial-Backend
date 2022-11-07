@@ -45,6 +45,7 @@ public static class ServiceRegistration
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IBlogService, BlogService>();
+        services.AddScoped<ICommentService, CommentService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
