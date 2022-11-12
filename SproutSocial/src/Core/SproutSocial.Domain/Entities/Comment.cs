@@ -10,5 +10,4 @@ public class Comment : BaseAuditableEntity
     public Blog Blog { get; set; } = null!;
     public Guid AppUserId { get; set; }
     public AppUser AppUser { get; set; } = null!;
-    public ICollection<SubComment>? SubComments { get; set; }
 }

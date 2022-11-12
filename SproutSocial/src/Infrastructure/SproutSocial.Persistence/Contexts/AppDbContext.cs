@@ -21,7 +21,6 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<BlogImage> BlogImages { get; set; } = null!;
     public DbSet<BlogLike> BlogLikes { get; set; } = null!;
     public DbSet<Comment> Comments { get; set; } = null!;
-    public DbSet<SubComment> SubComments { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

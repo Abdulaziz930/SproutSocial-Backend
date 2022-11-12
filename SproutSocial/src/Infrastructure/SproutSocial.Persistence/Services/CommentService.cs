@@ -45,34 +45,14 @@ public class CommentService : ICommentService
         if (blog is null)
             throw new NotFoundException($"Blog not found by id: {comment.BlogId}");
 
-        bool result = false;
-        if (string.IsNullOrWhiteSpace(comment.CommentId))
+        Comment newComment = new()
         {
-            Comment newComment = new()
-            {
-                Message = comment.Message,
-                BlogId = blog.Id,
-                AppUserId = dbUser.Id
-            };
+            Message = comment.Message,
+            BlogId = blog.Id,
+            AppUserId = dbUser.Id
+        };
 
-            result = await _unitOfWork.CommentWriteRepository.AddAsync(newComment);
-        }
-        else
-        {
-            SubComment subComment = new()
-            {
-                Message = comment.Message,
-                CommentId = Guid.Parse(comment.CommentId),
-                AppUserId = dbUser.Id
-            };
-
-            var dbComment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.Id == Guid.Parse(comment.CommentId));
-
-            dbComment.SubComments = dbComment.SubComments ?? new List<SubComment>();
-            dbComment.SubComments.Add(subComment);
-
-            result = _unitOfWork.CommentWriteRepository.Update(dbComment);
-        }
+        var result = await _unitOfWork.CommentWriteRepository.AddAsync(newComment);
 
         await _unitOfWork.SaveAsync();
 
@@ -81,7 +61,7 @@ public class CommentService : ICommentService
 
     public async Task<PagenatedListDto<CommentDto>> GetComments(string blogId, int page)
     {
-        var comments = _unitOfWork.CommentReadRepository.GetFiltered(c => !c.IsDeleted && c.BlogId == Guid.Parse(blogId), page, 10, tracking: false, "Blog", "AppUser", "SubComments.AppUser").AsEnumerable();
+        var comments = _unitOfWork.CommentReadRepository.GetFiltered(c => !c.IsDeleted && c.BlogId == Guid.Parse(blogId), page, 10, tracking: false, "Blog", "AppUser").AsEnumerable();
 
         var totalCount = await _unitOfWork.CommentReadRepository.GetTotalCountAsync(c => !c.IsDeleted && c.BlogId == Guid.Parse(blogId), "Blog");
 
@@ -95,18 +75,10 @@ public class CommentService : ICommentService
     public async Task<bool> EditCommentAsync(string commentId, UpdateCommentDto updateCommentDto)
     {
         var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.Id == Guid.Parse(commentId));
-        if (comment is not null)
-        {
-            comment.Message = updateCommentDto.Message;
-        }
-        else
-        {
-            comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.SubComments.Any(sc => sc.Id == Guid.Parse(commentId)), includes: "SubComments");
-            if (comment is null)
-                throw new NotFoundException($"Comment not found by id: {commentId}");
+        if (comment is null)
+            throw new NotFoundException($"Comment not found by id: {commentId}");
 
-            comment.SubComments.First().Message = updateCommentDto.Message;
-        }
+        comment.Message = updateCommentDto.Message;
 
         var result = _unitOfWork.CommentWriteRepository.Update(comment);
         await _unitOfWork.SaveAsync();
@@ -117,18 +89,10 @@ public class CommentService : ICommentService
     public async Task<bool> DeleteCommentAsync(string commentId)
     {
         var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.Id == Guid.Parse(commentId));
-        if (comment is not null)
-        {
-            comment.IsDeleted = true;
-        }
-        else
-        {
-            comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.SubComments.Any(sc => sc.Id == Guid.Parse(commentId)), includes: "SubComments");
-            if (comment is null)
-                throw new NotFoundException($"Comment not found by id: {commentId}");
+        if (comment is null)
+            throw new NotFoundException($"Comment not found by id: {commentId}");
 
-            comment.SubComments.First().IsDeleted = true;
-        }
+        comment.IsDeleted = true;
 
         var result = _unitOfWork.CommentWriteRepository.Update(comment);
         await _unitOfWork.SaveAsync();
