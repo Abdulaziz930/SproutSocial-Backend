@@ -9,4 +9,6 @@ public interface ICommentService
     Task<bool> PostCommentAsync(PostCommentDto comment);
     Task<bool> EditCommentAsync(string commentId, UpdateCommentDto updateCommentDto);
     Task<bool> DeleteCommentAsync(string commentId);
+    Task<bool> LikeCommentAsync(string commentId);
+    Task<bool> UnLikeCommentAsync(string commentId);
 }

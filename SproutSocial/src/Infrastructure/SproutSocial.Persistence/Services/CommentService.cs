@@ -61,7 +61,7 @@ public class CommentService : ICommentService
 
     public async Task<PagenatedListDto<CommentDto>> GetComments(string blogId, int page)
     {
-        var comments = _unitOfWork.CommentReadRepository.GetFiltered(c => !c.IsDeleted && c.BlogId == Guid.Parse(blogId), page, 10, tracking: false, "Blog", "AppUser").AsEnumerable();
+        var comments = _unitOfWork.CommentReadRepository.GetFiltered(c => !c.IsDeleted && c.BlogId == Guid.Parse(blogId), page, 10, tracking: false, "Blog", "AppUser", "CommentLikes.AppUser").AsEnumerable();
 
         var totalCount = await _unitOfWork.CommentReadRepository.GetTotalCountAsync(c => !c.IsDeleted && c.BlogId == Guid.Parse(blogId), "Blog");
 
@@ -93,6 +93,63 @@ public class CommentService : ICommentService
             throw new NotFoundException($"Comment not found by id: {commentId}");
 
         comment.IsDeleted = true;
+
+        var result = _unitOfWork.CommentWriteRepository.Update(comment);
+        await _unitOfWork.SaveAsync();
+
+        return result;
+    }
+
+    public async Task<bool> LikeCommentAsync(string commentId)
+    {
+        ArgumentNullException.ThrowIfNull(commentId);
+
+        var user = _httpContextAccessor.HttpContext.User.Identity;
+        if (!user.IsAuthenticated)
+            throw new AuthenticationFailException("Please login to like any comment");
+
+        var dbUser = await _userManager.FindByNameAsync(user.Name);
+        if (dbUser is null)
+            throw new UserNotFoundException($"User not found by name: {user.Name}");
+
+        var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(commentId) && !b.IsDeleted, tracking: true);
+        if (comment is null)
+            throw new NotFoundException($"Comment not found with id: {commentId}");
+
+        CommentLike commentLike = new()
+        {
+            CommentId = comment.Id,
+            AppUserId = dbUser.Id
+        };
+
+        comment.CommentLikes = comment.CommentLikes ?? new List<CommentLike>();
+        comment.CommentLikes.Add(commentLike);
+
+        var result = _unitOfWork.CommentWriteRepository.Update(comment);
+        await _unitOfWork.SaveAsync();
+
+        return result;
+    }
+
+    public async Task<bool> UnLikeCommentAsync(string commentId)
+    {
+        ArgumentNullException.ThrowIfNull(commentId);
+
+        var user = _httpContextAccessor.HttpContext.User.Identity;
+        if (!user.IsAuthenticated)
+            throw new AuthenticationFailException("Please login to unlike any comment");
+
+        var dbUser = await _userManager.FindByNameAsync(user.Name);
+        if (dbUser is null)
+            throw new UserNotFoundException($"User not found by name: {user.Name}");
+
+        var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(commentId) && !b.IsDeleted, tracking: true, "CommentLikes");
+        if (comment is null)
+            throw new NotFoundException($"Comment not found with id: {commentId}");
+
+        var likedBlog = comment.CommentLikes.FirstOrDefault(b => b.CommentId == Guid.Parse(commentId) && b.AppUserId == dbUser.Id);
+
+        comment.CommentLikes.Remove(likedBlog);
 
         var result = _unitOfWork.CommentWriteRepository.Update(comment);
         await _unitOfWork.SaveAsync();

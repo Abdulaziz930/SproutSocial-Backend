@@ -60,6 +60,12 @@ public class AutoMapperProfile : Profile
         CreateMap<Comment, CommentDto>()
             .ForPath(dest => dest.UserInfo.Id, from => from.MapFrom(src => src.AppUser.Id))
             .ForPath(dest => dest.UserInfo.UserName, from => from.MapFrom(src => src.AppUser.UserName))
+            .ForMember(dest => dest.LikeCount, from => from.MapFrom(src => src.CommentLikes.Count()))
+            .ForPath(dest => dest.Likes, from => from.MapFrom(src => src.CommentLikes.Select(x => new CommentLikeDto
+            {
+                UserName = x.AppUser.UserName,
+                UserId = x.AppUser.Id
+            })))
             .ReverseMap();
         CreateMap<PostCommentCommandRequest, PostCommentDto>().ReverseMap();
         CreateMap<PagenatedListDto<CommentDto>, GetCommentsQueryResponse>()
