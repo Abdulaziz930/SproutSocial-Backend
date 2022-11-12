@@ -13,4 +13,5 @@ public class AppUser : IdentityUser<Guid>
     public ICollection<BlogLike>? BlogLikes { get; set; }
     public ICollection<Comment>? Comments { get; set; }
     public ICollection<CommentLike>? CommentLikes { get; set; }
+    public ICollection<SavedBlog>? SavedBlogs { get; set; }
 }
