@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Persistence;
 
-public class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private ITopicReadRepository? _topicReadRepository;
