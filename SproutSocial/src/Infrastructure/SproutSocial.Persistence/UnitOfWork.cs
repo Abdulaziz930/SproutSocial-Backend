@@ -22,5 +22,6 @@ public class UnitOfWork : IUnitOfWork
     public ICommentReadRepository CommentReadRepository => _commentReadRepository = _commentReadRepository ?? new CommentReadRepository(_context);
     public ICommentWriteRepository CommentWriteRepository => _commentWriteRepository = _commentWriteRepository ?? new CommentWriteRepository(_context);
 
-    public async Task<int> SaveAsync() => await _context.SaveChangesAsync();
+    public async Task<int> SaveAsync(CancellationToken cancellationToken = default) 
+        => await _context.SaveChangesAsync(cancellationToken);
 }

@@ -11,5 +11,5 @@ public interface IUnitOfWork
     ICommentReadRepository CommentReadRepository { get; }
     ICommentWriteRepository CommentWriteRepository { get; }
 
-    Task<int> SaveAsync();
+    Task<int> SaveAsync(CancellationToken cancellationToken = default);
 }
