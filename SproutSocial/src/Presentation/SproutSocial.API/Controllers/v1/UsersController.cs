@@ -4,6 +4,8 @@ using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
+using SproutSocial.Application.Features.Commands.Blog.RemoveSavedBlog;
+using SproutSocial.Application.Features.Commands.Blog.SaveBlog;
 
 namespace SproutSocial.API.Controllers.v1;
 
@@ -48,5 +50,23 @@ public class UsersController : BaseController
         var response = await _mediator.Send(addUserTopicCommand);
 
         return StatusCode((int)response.StatusCode, response?.Message);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("save-blog/{blogId}")]
+    public async Task<IActionResult> SaveBlog([FromRoute] SaveBlogCommandRequest saveBlogCommandRequest)
+    {
+        var response = await _mediator.Send(saveBlogCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpDelete("remove-saved-blog/{blogId}")]
+    public async Task<IActionResult> RemoveSavedBlog([FromRoute] RemoveSavedBlogCommandRequest removeSavedBlogCommandRequest)
+    {
+        var response = await _mediator.Send(removeSavedBlogCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response);
     }
 }

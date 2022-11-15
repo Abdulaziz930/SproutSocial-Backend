@@ -11,12 +11,14 @@ namespace SproutSocial.Persistence.Services;
 public class UserService : IUserService
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor)
+    public UserService(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<AddUserTopicReponseDto> AddUserTopicsAsync(List<string> topicIds)
@@ -70,6 +72,64 @@ public class UserService : IUserService
         }
 
         throw new UserCreateFailedException();
+    }
+
+    public async Task<bool> SaveBlogAsync(string blogId)
+    {
+        ArgumentNullException.ThrowIfNull(blogId);
+
+        var user = _httpContextAccessor.HttpContext.User.Identity;
+        if (!user.IsAuthenticated)
+            throw new AuthenticationFailException("Please login to save any post");
+
+        var dbUser = await _userManager.FindByNameAsync(user.Name);
+        if (dbUser is null)
+            throw new UserNotFoundException($"User not found by name: {user.Name}");
+
+        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(blogId) && !b.IsDeleted, tracking: false);
+        if (blog is null)
+            throw new NotFoundException($"Blog not found with id: {blogId}");
+
+        SavedBlog savedBlog = new()
+        {
+            BlogId = blog.Id,
+            AppUserId = dbUser.Id,
+        };
+
+        dbUser.SavedBlogs = dbUser.SavedBlogs ?? new List<SavedBlog>();
+        dbUser.SavedBlogs.Add(savedBlog);
+
+        var identityResult = await _userManager.UpdateAsync(dbUser);
+
+        return identityResult.Succeeded;
+    }
+
+    public async Task<bool> RemoveSavedBlogAsync(string blogId)
+    {
+        ArgumentNullException.ThrowIfNull(blogId);
+
+        var user = _httpContextAccessor.HttpContext.User.Identity;
+        if (!user.IsAuthenticated)
+            throw new AuthenticationFailException("Please login to remove saved post");
+
+        var dbUser = await _userManager.FindByNameAsync(user.Name);
+        if (dbUser is null)
+            throw new UserNotFoundException($"User not found by name: {user.Name}");
+
+        var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(blogId) && !b.IsDeleted, tracking: true, "SavedBlogs");
+        if (blog is null)
+            throw new NotFoundException($"Blog not found with id: {blogId}");
+
+        var savedBlog = blog.SavedBlogs.FirstOrDefault(b => b.BlogId == Guid.Parse(blogId) && b.AppUserId == dbUser.Id);
+        if (savedBlog is null)
+            throw new NotFoundException("Saved blog not found");
+
+        blog.SavedBlogs.Remove(savedBlog);
+
+        var result = _unitOfWork.BlogWriteRepository.Update(blog);
+        await _unitOfWork.SaveAsync();
+
+        return result;
     }
 
     public async Task UpdateRefreshToken(string refreshToken, AppUser user, DateTime accessTokenEndDate, int refreshTokenLifeTime)
