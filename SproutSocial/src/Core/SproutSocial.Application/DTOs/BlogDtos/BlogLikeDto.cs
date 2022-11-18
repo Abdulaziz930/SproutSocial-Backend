@@ -1,7 +1,7 @@
 ﻿namespace SproutSocial.Application.DTOs.BlogDtos;
 
-public class BlogLikeDto
+public record BlogLikeDto
 {
-    public Guid UserId { get; set; }
-    public string UserName { get; set; } = null!;
+    public Guid UserId { get; init; }
+    public string UserName { get; init; } = null!;
 }

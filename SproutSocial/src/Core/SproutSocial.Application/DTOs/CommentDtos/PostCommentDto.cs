@@ -1,7 +1,3 @@
 ﻿namespace SproutSocial.Application.DTOs.BlogDtos;
 
-public class PostCommentDto
-{
-    public string Message { get; set; } = null!;
-    public string BlogId { get; set; } = null!;
-}
+public record PostCommentDto(string Message, string BlogId);

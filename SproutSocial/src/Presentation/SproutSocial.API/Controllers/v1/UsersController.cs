@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
+using SproutSocial.Application.Features.Commands.AppUser.FollowUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 using SproutSocial.Application.Features.Commands.Blog.RemoveSavedBlog;
@@ -66,6 +67,15 @@ public class UsersController : BaseController
     public async Task<IActionResult> RemoveSavedBlog([FromRoute] RemoveSavedBlogCommandRequest removeSavedBlogCommandRequest)
     {
         var response = await _mediator.Send(removeSavedBlogCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("sent-follow-request/{userId}")]
+    public async Task<IActionResult> SentFollowRequest([FromRoute] FollowUserCommandRequest followUserCommandRequest)
+    {
+        var response = await _mediator.Send(followUserCommandRequest);
 
         return StatusCode((int)response.StatusCode, response);
     }

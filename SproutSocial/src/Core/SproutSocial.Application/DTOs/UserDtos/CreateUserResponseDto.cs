@@ -1,7 +1,7 @@
 ﻿namespace SproutSocial.Application.DTOs.UserDtos;
 
-public class CreateUserResponseDto
+public record CreateUserResponseDto
 {
-    public bool IsSuccess { get; set; }
-    public string? Message { get; set; }
+    public bool IsSuccess { get; init; }
+    public string? Message { get; init; }
 }

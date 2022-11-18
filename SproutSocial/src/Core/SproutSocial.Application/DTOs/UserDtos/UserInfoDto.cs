@@ -1,13 +1,13 @@
 ﻿namespace SproutSocial.Application.DTOs.UserDtos;
 
-public class UserInfoDto
+public record UserInfoDto
 {
-    public Guid Id { get; set; }
-    public string UserName { get; set; } = null!;
+    public Guid Id { get; init; }
+    public string UserName { get; init; } = null!;
 }
 
-public class UserAuditableDto : UserInfoDto
+public record UserAuditableDto : UserInfoDto
 {
-    public string? Fullname { get; set; }
-    public string Email { get; set; } = null!;
+    public string? Fullname { get; init; }
+    public string Email { get; init; } = null!;
 }

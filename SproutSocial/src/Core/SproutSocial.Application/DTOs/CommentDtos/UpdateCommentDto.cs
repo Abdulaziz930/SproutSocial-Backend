@@ -1,6 +1,6 @@
 ﻿namespace SproutSocial.Application.DTOs.CommentDtos;
 
-public class UpdateCommentDto
+public record UpdateCommentDto
 {
-    public string Message { get; set; } = null!;
+    public string Message { get; init; } = null!;
 }

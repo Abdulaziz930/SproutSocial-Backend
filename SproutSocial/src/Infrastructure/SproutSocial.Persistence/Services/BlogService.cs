@@ -78,7 +78,16 @@ public class BlogService : IBlogService
 
         var blogsCount = await _unitOfWork.BlogReadRepository.GetTotalCountAsync(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted);
 
-        var blogsDto = _mapper.Map<IEnumerable<BlogDto>>(blogs);
+        IEnumerable<BlogDto> blogsDto = default;
+        try
+        {
+            blogsDto = _mapper.Map<IEnumerable<BlogDto>>(blogs);
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
 
         PagenatedListDto<BlogDto> pagenatedListDto = new(blogsDto, blogsCount, page, 5);
 

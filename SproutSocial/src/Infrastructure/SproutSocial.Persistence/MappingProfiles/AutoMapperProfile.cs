@@ -40,16 +40,19 @@ public class AutoMapperProfile : Profile
         CreateMap<LoginDto, LoginUserCommandRequest>().ReverseMap();
 
         CreateMap<Blog, BlogDto>()
-            .ForMember(dest => dest.Image, from => from.MapFrom(src => $"{_baseUrlAccessor.BaseUrl}/{src.BlogImage.Path}"))
-            .ForMember(dest => dest.Topics, from => from.MapFrom(src => src.BlogTopics.Select(x => x.Topic).ToList()))
-            .ForPath(dest => dest.UserInfo.Id, from => from.MapFrom(src => src.AppUser.Id))
-            .ForPath(dest => dest.UserInfo.UserName, from => from.MapFrom(src => src.AppUser.UserName))
-            .ForMember(dest => dest.LikeCount, from => from.MapFrom(src => src.BlogLikes.Count()))
-            .ForPath(dest => dest.Likes, from => from.MapFrom(src => src.BlogLikes.Select(x => new BlogLikeDto
+            .ForCtorParam(nameof(BlogDto.Image), from => from.MapFrom(src => $"{_baseUrlAccessor.BaseUrl}/{src.BlogImage.Path}"))
+            .ForCtorParam(nameof(BlogDto.Topics), from => from.MapFrom(src => src.BlogTopics.Select(x => x.Topic).ToList()))
+            .ForCtorParam(nameof(BlogDto.LikeCount), from => from.MapFrom(src => src.BlogLikes.Count()))
+            .ForCtorParam(nameof(BlogDto.Likes), from => from.MapFrom(src => src.BlogLikes.Select(x => new BlogLikeDto
             {
                 UserName = x.AppUser.UserName,
                 UserId = x.AppUser.Id
             })))
+            .ForCtorParam(nameof(BlogDto.UserInfo), from => from.MapFrom(src => new UserInfoDto
+            {
+               Id = src.AppUser.Id,
+               UserName = src.AppUser.UserName
+            }))
             .ReverseMap();
         CreateMap<BlogDto, GetAllBlogsQueryResponse>().ReverseMap();
         CreateMap<BlogDto, GetBlogByIdQueryResponse>().ReverseMap();
@@ -58,10 +61,13 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Blogs, from => from.MapFrom(src => src.Items)).ReverseMap();
 
         CreateMap<Comment, CommentDto>()
-            .ForPath(dest => dest.UserInfo.Id, from => from.MapFrom(src => src.AppUser.Id))
-            .ForPath(dest => dest.UserInfo.UserName, from => from.MapFrom(src => src.AppUser.UserName))
-            .ForMember(dest => dest.LikeCount, from => from.MapFrom(src => src.CommentLikes.Count()))
-            .ForPath(dest => dest.Likes, from => from.MapFrom(src => src.CommentLikes.Select(x => new CommentLikeDto
+            .ForCtorParam(nameof(CommentDto.UserInfo), from => from.MapFrom(src => new UserInfoDto
+            {
+                Id = src.AppUser.Id,
+                UserName = src.AppUser.UserName
+            }))
+            .ForCtorParam(nameof(CommentDto.LikeCount), from => from.MapFrom(src => src.CommentLikes.Count()))
+            .ForCtorParam(nameof(CommentDto.Likes), from => from.MapFrom(src => src.CommentLikes.Select(x => new CommentLikeDto
             {
                 UserName = x.AppUser.UserName,
                 UserId = x.AppUser.Id
