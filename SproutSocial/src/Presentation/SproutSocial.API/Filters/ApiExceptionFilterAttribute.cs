@@ -17,7 +17,9 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(UserCreateFailedException), HandleUserCreateFailedException},
             { typeof(UserNotFoundException), HandleUserNotFoundException},
             { typeof(PageFormatException), HandlePageFormatException},
-            { typeof(ArgumentNullException), HandleArgumentException}
+            { typeof(ArgumentNullException), HandleArgumentException},
+            { typeof(UserAlreadyFollowingException), HandleUserAlreadyFollowingException},
+            { typeof(UserFollowException), HandleUserFollowException}
         };
     }
 
@@ -146,6 +148,36 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         var details = new ProblemDetails()
         {
             Title = "Wrong page format",
+            Detail = exception.Message
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleUserAlreadyFollowingException(ExceptionContext context)
+    {
+        var exception = (UserAlreadyFollowingException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "Follow problem",
+            Detail = exception.Message
+        };
+
+        context.Result = new ConflictObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleUserFollowException(ExceptionContext context)
+    {
+        var exception = (UserFollowException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "Follow problem",
             Detail = exception.Message
         };
 

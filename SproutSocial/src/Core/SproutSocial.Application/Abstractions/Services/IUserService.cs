@@ -10,7 +10,4 @@ public interface IUserService
     Task<AddUserTopicReponseDto> AddUserTopicsAsync(List<string> topicIds);
     Task<bool> SaveBlogAsync(string blogId);
     Task<bool> RemoveSavedBlogAsync(string blogId);
-    Task<bool> FollowRequestAsync(string userId);
-    Task<bool> UnFollowAsync(string userId);
-    Task<bool> AcceptOrDeclineFollowRequestAsync(bool acceptOrDeclineFollowRequest, string userFollowId);
 }

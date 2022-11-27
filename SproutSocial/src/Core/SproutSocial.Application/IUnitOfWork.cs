@@ -10,6 +10,8 @@ public interface IUnitOfWork
     IBlogWriteRepository BlogWriteRepository { get; }
     ICommentReadRepository CommentReadRepository { get; }
     ICommentWriteRepository CommentWriteRepository { get; }
+    IFollowingReadRepository FollowingReadRepository { get; }
+    IFollowingWriteRepository FollowingWriteRepository { get; }
 
     Task<int> SaveAsync(CancellationToken cancellationToken = default);
 }

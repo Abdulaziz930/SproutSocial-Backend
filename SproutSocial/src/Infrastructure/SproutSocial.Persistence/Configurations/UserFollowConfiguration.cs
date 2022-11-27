@@ -8,7 +8,7 @@ public class UserFollowConfiguration : IEntityTypeConfiguration<UserFollow>
     {
         builder.Property(uf => uf.FollowingUserId)
             .IsRequired(true);
-        builder.Property(uf => uf.FollowerUserId)
+        builder.Property(uf => uf.FollowedUserId)
             .IsRequired(true);
         builder.Property(uf => uf.IsConfirmed)
             .HasDefaultValue(false);
@@ -19,9 +19,9 @@ public class UserFollowConfiguration : IEntityTypeConfiguration<UserFollow>
             .HasForeignKey(uf => uf.FollowingUserId)
             .OnDelete(DeleteBehavior.Restrict);
         builder
-            .HasOne(uf => uf.FollowerUser)
+            .HasOne(uf => uf.FollowedUser)
             .WithMany(u => u.FollowRequestsAccepted)
-            .HasForeignKey(uf => uf.FollowerUserId)
+            .HasForeignKey(uf => uf.FollowedUserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

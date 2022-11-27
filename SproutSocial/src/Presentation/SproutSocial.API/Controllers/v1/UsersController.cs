@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
-using SproutSocial.Application.Features.Commands.AppUser.FollowUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 using SproutSocial.Application.Features.Commands.Blog.RemoveSavedBlog;
 using SproutSocial.Application.Features.Commands.Blog.SaveBlog;
+using SproutSocial.Application.Features.Commands.Follow.AcceptOrDecline;
+using SproutSocial.Application.Features.Commands.Follow.MakeFollow;
+using SproutSocial.Application.Features.Commands.Follow.UnFollow;
 
 namespace SproutSocial.API.Controllers.v1;
 
@@ -72,10 +74,29 @@ public class UsersController : BaseController
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [HttpPost("sent-follow-request/{userId}")]
-    public async Task<IActionResult> SentFollowRequest([FromRoute] FollowUserCommandRequest followUserCommandRequest)
+    [HttpPost("sent-follow-request")]
+    public async Task<IActionResult> SentFollowRequest([FromBody] MakeFollowCommandRequest makeFollowCommandRequest)
     {
-        var response = await _mediator.Send(followUserCommandRequest);
+        var response = await _mediator.Send(makeFollowCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("accept-or-decline-follow-request")]
+    public async Task<IActionResult> AcceptOrDeclineFollowRequest([FromBody] AcceptOrDeclineCommandRequest 
+            acceptOrDeclineCommandRequest)
+    {
+        var response = await _mediator.Send(acceptOrDeclineCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpDelete("unfollow")]
+    public async Task<IActionResult> UnFollow([FromBody] UnFollowCommandRequest unFollowCommandRequest)
+    {
+        var response = await _mediator.Send(unFollowCommandRequest);
 
         return StatusCode((int)response.StatusCode, response);
     }

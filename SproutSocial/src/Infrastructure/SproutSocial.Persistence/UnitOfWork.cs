@@ -9,6 +9,8 @@ public sealed class UnitOfWork : IUnitOfWork
     private IBlogWriteRepository? _blogWriteRepository;
     private ICommentReadRepository? _commentReadRepository;
     private ICommentWriteRepository? _commentWriteRepository;
+    private IFollowingReadRepository? _followingReadRepository;
+    private IFollowingWriteRepository? _followingWriteRepository;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -21,6 +23,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public IBlogWriteRepository BlogWriteRepository => _blogWriteRepository = _blogWriteRepository ?? new BlogWriteRepository(_context);
     public ICommentReadRepository CommentReadRepository => _commentReadRepository = _commentReadRepository ?? new CommentReadRepository(_context);
     public ICommentWriteRepository CommentWriteRepository => _commentWriteRepository = _commentWriteRepository ?? new CommentWriteRepository(_context);
+    public IFollowingReadRepository FollowingReadRepository => _followingReadRepository = _followingReadRepository ?? new FollowingReadRepository(_context);
+    public IFollowingWriteRepository FollowingWriteRepository => _followingWriteRepository = _followingWriteRepository ?? new FollowingWriteRepository(_context);
 
     public async Task<int> SaveAsync(CancellationToken cancellationToken = default) 
         => await _context.SaveChangesAsync(cancellationToken);
