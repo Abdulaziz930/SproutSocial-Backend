@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using SproutSocial.Application.Abstractions.Services;
-using SproutSocial.Application.Exceptions;
+using SproutSocial.Application.Exceptions.Authentication;
+using SproutSocial.Application.Exceptions.Users;
 using SproutSocial.Domain.Entities.Identity;
+using System.Net;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -25,21 +27,21 @@ public class FollowService : IFollowService
             throw new ArgumentNullException("Follower or followed username cannot be null or empty");
 
         var isLoggedInUser = _httpContextAccessor.HttpContext.User.Identity.Name == followingName;
-        if (!isLoggedInUser) throw new AuthenticationFailException("User not logged in");
+        if (!isLoggedInUser) throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);
 
         var followingUser = await _userManager.FindByNameAsync(followingName);
         if (followingUser is null)
-            throw new UserNotFoundException($"User not found by username: {followingName}");
+            throw new UserNotFoundException("UserName", followingName);
 
         var followedUser = await _userManager.FindByNameAsync(followedName);
         if (followedUser is null)
-            throw new UserNotFoundException($"User not found by username: {followedName}");
+            throw new UserNotFoundException("UserName", followedName);
 
         bool isFollowing = await IsFollowingAsync(followingName, followedName);
         if (isFollowing)
             throw new UserAlreadyFollowingException(followingName, followedName);
 
-        if (followingName == followedName) throw new UserFollowException("User cannot follow himself/herself");
+        if (followingName == followedName) throw new UserFollowException();
 
         UserFollow userFollow = new()
         {
@@ -60,12 +62,12 @@ public class FollowService : IFollowService
         ArgumentNullException.ThrowIfNull(followedName);
 
         var isLoggedInUser = _httpContextAccessor.HttpContext.User.Identity.Name == followedName;
-        if (!isLoggedInUser) throw new AuthenticationFailException("User not logged in");
+        if (!isLoggedInUser) throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);
 
         var userFollow = await _unitOfWork.FollowingReadRepository.GetSingleAsync(f => f.FollowedUser.UserName == followedName &&
              f.FollowingUser.UserName == followingName && !f.IsConfirmed, tracking: true, "FollowingUser", "FollowedUser");
         if (userFollow is null)
-            throw new UserNotFoundException($"User not found by username: {followedName}");
+            throw new UserNotFoundException("UserName", followingName);
 
         if (acceptOrDeclineFollowRequest)
         {
@@ -88,12 +90,12 @@ public class FollowService : IFollowService
             throw new ArgumentNullException("Follower or followed username cannot be null or empty");
 
         var isLoggedInUser = _httpContextAccessor.HttpContext.User.Identity.Name == followingName;
-        if (!isLoggedInUser) throw new AuthenticationFailException("User not logged in");
+        if (!isLoggedInUser) throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);
 
         var userFollow = await _unitOfWork.FollowingReadRepository.GetSingleAsync(f => f.FollowingUser.UserName == followingName &&
              f.FollowedUser.UserName == followedName, tracking: true, "FollowingUser", "FollowedUser");
         if (userFollow is null)
-            throw new NotFoundException($"{followingName} is not following {followedName}");
+            throw new FollowerNotFoundException(followingName, followedName);
 
         var result = _unitOfWork.FollowingWriteRepository.Remove(userFollow);
         await _unitOfWork.SaveAsync();

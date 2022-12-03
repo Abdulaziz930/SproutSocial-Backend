@@ -2,7 +2,8 @@
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.DTOs.Common;
 using SproutSocial.Application.DTOs.TopicDtos;
-using SproutSocial.Application.Exceptions;
+using SproutSocial.Application.Exceptions.Common;
+using SproutSocial.Application.Exceptions.Topics;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -21,7 +22,7 @@ public class TopicService : ITopicService
     {
         bool isExist = await _unitOfWork.TopicReadRepository.IsExistsAsync(t => t.Name.ToLower().Trim() == topic.Name.ToLower().Trim() && !t.IsDeleted);
         if(isExist) 
-            throw new RecordAlreadyExistException("Topic name already exist");
+            throw new TopicAlreadyExistException();
 
         Topic newTopic = _mapper.Map<Topic>(topic);
 
@@ -40,7 +41,7 @@ public class TopicService : ITopicService
             topic = await _unitOfWork.TopicReadRepository.GetSingleAsync(t => t.Id == topicId && !t.IsDeleted);
 
         if (topic is null)
-            throw new NotFoundException($"Topic not found by id: {id}");
+            throw new TopicNotFoundByIdException(Guid.Parse(id));
 
         topic.IsDeleted = true;
         
@@ -55,7 +56,7 @@ public class TopicService : ITopicService
 
         var topics = await _unitOfWork.TopicReadRepository.GetFiltered(t => !string.IsNullOrWhiteSpace(search) ? t.Name.ToLower().Contains(search.ToLower()) : true && !t.IsDeleted, page, 5,tracking: false).ToListAsync();
         if (topics is null)
-            throw new NotFoundException("There is no any topic data");
+            throw new TopicNotFoundException();
 
         var topicsCount = await _unitOfWork.TopicReadRepository.GetTotalCountAsync(t => !string.IsNullOrWhiteSpace(search) ? t.Name.ToLower().Contains(search.ToLower()) : true && !t.IsDeleted);
 
@@ -72,7 +73,7 @@ public class TopicService : ITopicService
 
         var topic = await _unitOfWork.TopicReadRepository.GetByIdAsync(id, tracking: false);
         if (topic is null)
-            throw new NotFoundException($"Topic not found by id: {id}");
+            throw new TopicNotFoundException();
 
         TopicDto topicDto = _mapper.Map<TopicDto>(topic);
         return topicDto;
@@ -84,14 +85,14 @@ public class TopicService : ITopicService
 
         var topic = await _unitOfWork.TopicReadRepository.GetByIdAsync(id);
         if (topic is null)
-            throw new NotFoundException($"Topic not found by id: {id}");
+            throw new TopicNotFoundByIdException(Guid.Parse(id));
 
         bool isExist = default;
         if(Guid.TryParse(id, out Guid topicId))
             isExist = await _unitOfWork.TopicReadRepository.IsExistsAsync(t => t.Name.ToLower().Trim() == topic.Name.ToLower().Trim() && !t.IsDeleted && t.Id != topicId);
 
         if(isExist)
-            throw new RecordAlreadyExistException("Topic name already exist");
+            throw new TopicAlreadyExistException();
 
         topic.Name = topicDto.Name;
         _unitOfWork.TopicWriteRepository.Update(topic);

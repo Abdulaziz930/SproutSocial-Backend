@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.DTOs.UserDtos;
-using SproutSocial.Application.Exceptions;
+using SproutSocial.Application.Exceptions.Authentication;
+using SproutSocial.Application.Exceptions.Blogs;
+using SproutSocial.Application.Exceptions.Users;
 using SproutSocial.Domain.Entities.Identity;
 using SproutSocial.Persistence.Enums;
+using System.Net;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -48,7 +51,7 @@ public class UserService : IUserService
             };
         }
 
-        throw new UserNotFoundException("User not authenticated");
+        throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);
     }
 
     public async Task<CreateUserResponseDto> CreateAsync(CreateUserDto model)
@@ -71,7 +74,7 @@ public class UserService : IUserService
             };
         }
 
-        throw new UserCreateFailedException();
+        throw new UserCreateFailedException(result.Errors);
     }
 
     public async Task<bool> SaveBlogAsync(string blogId)
@@ -80,15 +83,15 @@ public class UserService : IUserService
 
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to save any post");
+            throw new AuthorizationException("Please login to save any post", HttpStatusCode.Unauthorized);
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(blogId) && !b.IsDeleted, tracking: false);
         if (blog is null)
-            throw new NotFoundException($"Blog not found with id: {blogId}");
+            throw new BlogNotFoundByIdException(Guid.Parse(blogId));
 
         SavedBlog savedBlog = new()
         {
@@ -110,19 +113,19 @@ public class UserService : IUserService
 
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to remove saved post");
+            throw new AuthorizationException("Please login to remove saved any post", HttpStatusCode.Unauthorized);
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(blogId) && !b.IsDeleted, tracking: true, "SavedBlogs");
         if (blog is null)
-            throw new NotFoundException($"Blog not found with id: {blogId}");
+            throw new BlogNotFoundByIdException(Guid.Parse(blogId));
 
         var savedBlog = blog.SavedBlogs.FirstOrDefault(b => b.BlogId == Guid.Parse(blogId) && b.AppUserId == dbUser.Id);
         if (savedBlog is null)
-            throw new NotFoundException("Saved blog not found");
+            throw new BlogNotFoundException("Saved blog not found");
 
         blog.SavedBlogs.Remove(savedBlog);
 

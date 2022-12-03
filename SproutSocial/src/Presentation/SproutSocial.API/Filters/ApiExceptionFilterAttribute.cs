@@ -11,15 +11,8 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
         {
-            { typeof(NotFoundException), HandleNotFoundException },
-            { typeof(RecordAlreadyExistException), HandleRecordAlreadyExistException},
-            { typeof(AuthenticationFailException), HandleAuthenticationFailException},
-            { typeof(UserCreateFailedException), HandleUserCreateFailedException},
-            { typeof(UserNotFoundException), HandleUserNotFoundException},
-            { typeof(PageFormatException), HandlePageFormatException},
             { typeof(ArgumentNullException), HandleArgumentException},
-            { typeof(UserAlreadyFollowingException), HandleUserAlreadyFollowingException},
-            { typeof(UserFollowException), HandleUserFollowException}
+            { typeof(IServiceException), HandleServiceException},
         };
     }
 
@@ -33,6 +26,13 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     private void HandleException(ExceptionContext context)
     {
         Type type = context.Exception.GetType();
+        var interfaces = type.GetInterfaces();
+        if (interfaces != null && interfaces.Length > 0 && interfaces.Contains(typeof(IServiceException)))
+        {
+            _exceptionHandlers[typeof(IServiceException)].Invoke(context);
+            return;
+        }
+
         if (_exceptionHandlers.ContainsKey(type))
         {
             _exceptionHandlers[type].Invoke(context);
@@ -51,81 +51,6 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         context.ExceptionHandled = true;
     }
 
-    private void HandleNotFoundException(ExceptionContext context)
-    {
-        var exception = (NotFoundException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "The specified resource was not found.",
-            Detail = exception.Message
-        };
-
-        context.Result = new NotFoundObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-
-    private void HandleRecordAlreadyExistException(ExceptionContext context)
-    {
-        var exception = (RecordAlreadyExistException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "The specified resource already exist.",
-            Detail = exception.Message
-        };
-
-        context.Result = new BadRequestObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-    
-    private void HandleAuthenticationFailException(ExceptionContext context)
-    {
-        var exception = (AuthenticationFailException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "Authentication fail",
-            Detail = exception.Message
-        };
-
-        context.Result = new UnauthorizedObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-    
-    private void HandleUserCreateFailedException(ExceptionContext context)
-    {
-        var exception = (UserCreateFailedException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "User creation is failed",
-            Detail = exception.Message
-        };
-
-        context.Result = new BadRequestObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-
-    private void HandleUserNotFoundException(ExceptionContext context)
-    {
-        var exception = (UserNotFoundException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "User not found",
-            Detail = exception.Message
-        };
-
-        context.Result = new UnauthorizedObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-
     private void HandleArgumentException(ExceptionContext context)
     {
         var exception = (ArgumentNullException)context.Exception;
@@ -141,47 +66,19 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         context.ExceptionHandled = true;
     }
 
-    private void HandlePageFormatException(ExceptionContext context)
+    private void HandleServiceException(ExceptionContext context)
     {
-        var exception = (PageFormatException)context.Exception;
+        var exception = (IServiceException)context.Exception;
 
         var details = new ProblemDetails()
         {
-            Title = "Wrong page format",
-            Detail = exception.Message
+            Title = exception.ErrorMessage,
+            Detail = exception.ErrorDetail,
+            Status = (int)exception.StatusCode
         };
 
-        context.Result = new BadRequestObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-
-    private void HandleUserAlreadyFollowingException(ExceptionContext context)
-    {
-        var exception = (UserAlreadyFollowingException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "Follow problem",
-            Detail = exception.Message
-        };
-
-        context.Result = new ConflictObjectResult(details);
-
-        context.ExceptionHandled = true;
-    }
-
-    private void HandleUserFollowException(ExceptionContext context)
-    {
-        var exception = (UserFollowException)context.Exception;
-
-        var details = new ProblemDetails()
-        {
-            Title = "Follow problem",
-            Detail = exception.Message
-        };
-
-        context.Result = new BadRequestObjectResult(details);
+        context.HttpContext.Response.StatusCode = (int)exception.StatusCode;
+        context.Result = new ObjectResult(details);
 
         context.ExceptionHandled = true;
     }

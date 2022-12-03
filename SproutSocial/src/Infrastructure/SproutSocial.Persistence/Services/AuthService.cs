@@ -2,7 +2,9 @@
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Abstractions.Token;
 using SproutSocial.Application.DTOs.UserDtos;
-using SproutSocial.Application.Exceptions;
+using SproutSocial.Application.Exceptions.Authentication;
+using SproutSocial.Application.Exceptions.Authentication.Token;
+using SproutSocial.Application.Exceptions.Users;
 using SproutSocial.Domain.Entities.Identity;
 
 namespace SproutSocial.Persistence.Services;
@@ -30,7 +32,7 @@ public class AuthService : IAuthService
             user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
 
         if (user == null)
-            throw new UserNotFoundException();
+            throw new AuthenticationFailException();
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
         if (result.Succeeded)
@@ -46,13 +48,16 @@ public class AuthService : IAuthService
     public async Task<TokenResponseDto> RefreshTokenLoginAsync(string refreshToken)
     {
         AppUser? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
-        if (user != null && user?.RefreshTokenEndDate > DateTime.UtcNow)
+        if(user is null)
+            throw new UserNotFoundException("User not found");
+
+        if (user?.RefreshTokenEndDate > DateTime.UtcNow)
         {
             TokenResponseDto tokenResponse = await _tokenHandler.CreateAccessTokenAsync(2, user);
             await _userService.UpdateRefreshToken(refreshToken, user, tokenResponse.Expiration, 2);
             return tokenResponse;
         }
 
-        throw new UserNotFoundException("User not found");
+        throw new RefreshTokenExpiredException();
     }
 }

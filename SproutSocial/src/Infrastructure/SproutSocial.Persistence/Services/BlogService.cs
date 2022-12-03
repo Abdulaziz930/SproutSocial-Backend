@@ -5,8 +5,12 @@ using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Abstractions.Storage;
 using SproutSocial.Application.DTOs.BlogDtos;
 using SproutSocial.Application.DTOs.Common;
-using SproutSocial.Application.Exceptions;
+using SproutSocial.Application.Exceptions.Authentication;
+using SproutSocial.Application.Exceptions.Blogs;
+using SproutSocial.Application.Exceptions.Common;
+using SproutSocial.Application.Exceptions.Users;
 using SproutSocial.Domain.Entities.Identity;
+using System.Net;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -32,7 +36,7 @@ public class BlogService : IBlogService
         var userName = _httpContextAccessor?.HttpContext?.User?.Identity?.Name;
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null)
-            throw new UserNotFoundException($"User not found by name: {userName}");
+            throw new UserNotFoundException("UserName", userName);
 
         Blog newBlog = new()
         {
@@ -74,20 +78,11 @@ public class BlogService : IBlogService
 
         var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic", "BlogLikes.AppUser").ToListAsync();
         if (blogs == null || blogs.Count == 0)
-            throw new NotFoundException("There is no any blog items");
+            throw new BlogNotFoundException();
 
         var blogsCount = await _unitOfWork.BlogReadRepository.GetTotalCountAsync(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted);
 
-        IEnumerable<BlogDto> blogsDto = default;
-        try
-        {
-            blogsDto = _mapper.Map<IEnumerable<BlogDto>>(blogs);
-        }
-        catch (Exception ex)
-        {
-
-            throw;
-        }
+        IEnumerable<BlogDto> blogsDto = _mapper.Map<IEnumerable<BlogDto>>(blogs);
 
         PagenatedListDto<BlogDto> pagenatedListDto = new(blogsDto, blogsCount, page, 5);
 
@@ -100,7 +95,7 @@ public class BlogService : IBlogService
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic", "BlogLikes.AppUser");
         if (blog == null)
-            throw new NotFoundException($"Blog not found with id: {id}");
+            throw new BlogNotFoundByIdException(Guid.Parse(id));
 
         var blogDto = _mapper.Map<BlogDto>(blog);
         return blogDto;
@@ -112,7 +107,7 @@ public class BlogService : IBlogService
 
         var dbBlog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true, "AppUser", "BlogImage", "BlogTopics.Topic");
         if (dbBlog == null)
-            throw new NotFoundException($"Blog not found with id: {id}");
+            throw new BlogNotFoundByIdException(Guid.Parse(id));
 
         if (blog.FormFile != null)
         {
@@ -154,7 +149,7 @@ public class BlogService : IBlogService
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true);
         if (blog == null)
-            throw new NotFoundException($"Blog not found with id: {id}");
+            throw new BlogNotFoundByIdException(Guid.Parse(id));
 
         blog.IsDeleted = true;
 
@@ -169,15 +164,15 @@ public class BlogService : IBlogService
 
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to like any post");
+            throw new AuthorizationException("Please login to like any post", HttpStatusCode.Unauthorized);
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true);
         if (blog is null)
-            throw new NotFoundException($"Blog not found with id: {id}");
+            throw new BlogNotFoundByIdException(Guid.Parse(id));
 
         BlogLike blogLike = new()
         {
@@ -200,15 +195,15 @@ public class BlogService : IBlogService
 
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to like any post");
+            throw new AuthorizationException("Please login to unlike any post", HttpStatusCode.Unauthorized);
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(id) && !b.IsDeleted, tracking: true, "BlogLikes");
         if (blog is null)
-            throw new NotFoundException($"Blog not found with id: {id}");
+            throw new BlogNotFoundByIdException(Guid.Parse(id));
 
         var likedBlog = blog.BlogLikes.FirstOrDefault(b => b.BlogId == Guid.Parse(id) && b.AppUserId == dbUser.Id);
 

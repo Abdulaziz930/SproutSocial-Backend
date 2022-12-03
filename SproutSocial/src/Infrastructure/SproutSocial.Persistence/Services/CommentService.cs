@@ -5,8 +5,12 @@ using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.DTOs.BlogDtos;
 using SproutSocial.Application.DTOs.CommentDtos;
 using SproutSocial.Application.DTOs.Common;
-using SproutSocial.Application.Exceptions;
+using SproutSocial.Application.Exceptions.Authentication;
+using SproutSocial.Application.Exceptions.Blogs;
+using SproutSocial.Application.Exceptions.Comments;
+using SproutSocial.Application.Exceptions.Users;
 using SproutSocial.Domain.Entities.Identity;
+using System.Net;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -29,7 +33,7 @@ public class CommentService : ICommentService
     {
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to comment any post");
+            throw new AuthorizationException("Please login to comment any post", HttpStatusCode.Unauthorized);
 
         if (string.IsNullOrWhiteSpace(comment.Message))
             throw new ArgumentNullException("Message cannot be empty or null");
@@ -39,11 +43,11 @@ public class CommentService : ICommentService
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var blog = await _unitOfWork.BlogReadRepository.GetSingleAsync(b => !b.IsDeleted && b.Id == Guid.Parse(comment.BlogId), tracking: true, "Comments");
         if (blog is null)
-            throw new NotFoundException($"Blog not found by id: {comment.BlogId}");
+            throw new BlogNotFoundByIdException(Guid.Parse(comment.BlogId));
 
         Comment newComment = new()
         {
@@ -76,7 +80,7 @@ public class CommentService : ICommentService
     {
         var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.Id == Guid.Parse(commentId));
         if (comment is null)
-            throw new NotFoundException($"Comment not found by id: {commentId}");
+            throw new CommentNotFoundByIdException(Guid.Parse(commentId));
 
         comment.Message = updateCommentDto.Message;
 
@@ -90,7 +94,7 @@ public class CommentService : ICommentService
     {
         var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(c => !c.IsDeleted && c.Id == Guid.Parse(commentId));
         if (comment is null)
-            throw new NotFoundException($"Comment not found by id: {commentId}");
+            throw new CommentNotFoundByIdException(Guid.Parse(commentId));
 
         comment.IsDeleted = true;
 
@@ -106,15 +110,15 @@ public class CommentService : ICommentService
 
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to like any comment");
+            throw new AuthorizationException("Please login to like any comment", HttpStatusCode.Unauthorized);
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(commentId) && !b.IsDeleted, tracking: true);
         if (comment is null)
-            throw new NotFoundException($"Comment not found with id: {commentId}");
+            throw new CommentNotFoundByIdException(Guid.Parse(commentId));
 
         CommentLike commentLike = new()
         {
@@ -137,15 +141,15 @@ public class CommentService : ICommentService
 
         var user = _httpContextAccessor.HttpContext.User.Identity;
         if (!user.IsAuthenticated)
-            throw new AuthenticationFailException("Please login to unlike any comment");
+            throw new AuthorizationException("Please login to unlike any comment", HttpStatusCode.Unauthorized);
 
         var dbUser = await _userManager.FindByNameAsync(user.Name);
         if (dbUser is null)
-            throw new UserNotFoundException($"User not found by name: {user.Name}");
+            throw new UserNotFoundException(nameof(user.Name), user.Name);
 
         var comment = await _unitOfWork.CommentReadRepository.GetSingleAsync(b => b.Id == Guid.Parse(commentId) && !b.IsDeleted, tracking: true, "CommentLikes");
         if (comment is null)
-            throw new NotFoundException($"Comment not found with id: {commentId}");
+            throw new CommentNotFoundByIdException(Guid.Parse(commentId));
 
         var likedBlog = comment.CommentLikes.FirstOrDefault(b => b.CommentId == Guid.Parse(commentId) && b.AppUserId == dbUser.Id);
 
