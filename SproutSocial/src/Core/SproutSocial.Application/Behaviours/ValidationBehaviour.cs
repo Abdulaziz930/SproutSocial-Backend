@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Web.Http.Results;
 
 namespace SproutSocial.Application.Behaviours;
 
