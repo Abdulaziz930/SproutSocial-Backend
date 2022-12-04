@@ -5,6 +5,7 @@ using SproutSocial.Application.Exceptions.Authentication;
 using SproutSocial.Application.Exceptions.Users;
 using SproutSocial.Domain.Entities.Identity;
 using System.Net;
+using SproutSocial.Application.Helpers.Extesions;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -23,8 +24,8 @@ public class FollowService : IFollowService
 
     public async Task<bool> FollowRequestAsync(string followingName, string followedName)
     {
-        if (string.IsNullOrWhiteSpace(followingName) || string.IsNullOrWhiteSpace(followedName))
-            throw new ArgumentNullException("Follower or followed username cannot be null or empty");
+        followingName.ThrowIfNullOrWhiteSpace("Follower username cannot be null or whitespace");
+        followedName.ThrowIfNullOrWhiteSpace("Followed username cannot be null or whitespace");
 
         var isLoggedInUser = _httpContextAccessor.HttpContext.User.Identity.Name == followingName;
         if (!isLoggedInUser) throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);
@@ -59,7 +60,7 @@ public class FollowService : IFollowService
     public async Task<bool> AcceptOrDeclineFollowRequestAsync(bool acceptOrDeclineFollowRequest, string followedName
         , string followingName)
     {
-        ArgumentNullException.ThrowIfNull(followedName);
+        followedName.ThrowIfNullOrWhiteSpace("Followed username cannot be null or whitespace");
 
         var isLoggedInUser = _httpContextAccessor.HttpContext.User.Identity.Name == followedName;
         if (!isLoggedInUser) throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);
@@ -86,8 +87,8 @@ public class FollowService : IFollowService
 
     public async Task<bool> UnFollowAsync(string followingName, string followedName)
     {
-        if (string.IsNullOrWhiteSpace(followingName) || string.IsNullOrWhiteSpace(followedName))
-            throw new ArgumentNullException("Follower or followed username cannot be null or empty");
+        followingName.ThrowIfNullOrWhiteSpace("Follower username cannot be null or whitespace");
+        followedName.ThrowIfNullOrWhiteSpace("Followed username cannot be null or whitespace");
 
         var isLoggedInUser = _httpContextAccessor.HttpContext.User.Identity.Name == followingName;
         if (!isLoggedInUser) throw new AuthorizationException("User not logged in", HttpStatusCode.Unauthorized);

@@ -11,7 +11,8 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
         {
-            { typeof(ArgumentNullException), HandleArgumentException},
+            { typeof(ArgumentException), HandleArgumentException},
+            { typeof(ArgumentNullException), HandleArgumentNullException},
             { typeof(IServiceException), HandleServiceException},
         };
     }
@@ -52,6 +53,21 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     }
 
     private void HandleArgumentException(ExceptionContext context)
+    {
+        var exception = (ArgumentException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "Wrong argument problem",
+            Detail = exception.Message
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleArgumentNullException(ExceptionContext context)
     {
         var exception = (ArgumentNullException)context.Exception;
 
