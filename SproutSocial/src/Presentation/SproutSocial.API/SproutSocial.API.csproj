@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\SproutSocial.Infrastructure\SproutSocial.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\SproutSocial.Persistence\SproutSocial.Persistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\SproutSocial.Quartz\SproutSocial.Quartz.csproj" />
   </ItemGroup>
 
   <ItemGroup>

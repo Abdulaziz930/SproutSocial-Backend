@@ -4,6 +4,7 @@ using SproutSocial.Application;
 using SproutSocial.Infrastructure;
 using SproutSocial.Infrastructure.Services.Storage.Local;
 using SproutSocial.Persistence;
+using SproutSocial.Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrasturctureServices();
+builder.Services.AddQuartzServices();
 builder.Services.AddStorage<LocalStorage>();
 
 builder.Services.AddApiVersionService(builder.Configuration["Version"]);
