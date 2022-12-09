@@ -17,7 +17,10 @@ public static class ServiceRegistration
 
         services.AddSingleton<TestJob>();
 
-        services.AddSingleton(new JobSchedule(jobType: typeof(TestJob), cronExpression: "0/5 * * * * ?"));
+        services.AddSingleton(new JobSchedule(
+            jobType: typeof(TestJob), 
+            cronExpression: Configuration.GetCronExpression(nameof(TestJob))
+            ));
 
         services.AddHostedService<QuartzHostedService>();
 
