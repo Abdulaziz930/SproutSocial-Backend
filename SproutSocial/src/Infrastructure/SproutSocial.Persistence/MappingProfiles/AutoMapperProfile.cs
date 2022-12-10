@@ -3,6 +3,7 @@ using SproutSocial.Application.Abstractions.Common;
 using SproutSocial.Application.DTOs.BlogDtos;
 using SproutSocial.Application.DTOs.CommentDtos;
 using SproutSocial.Application.DTOs.Common;
+using SproutSocial.Application.DTOs.MailDtos;
 using SproutSocial.Application.DTOs.TopicDtos;
 using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
@@ -10,6 +11,7 @@ using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 using SproutSocial.Application.Features.Commands.Blog.UpdateBlog;
 using SproutSocial.Application.Features.Commands.Comment.PostComment;
+using SproutSocial.Application.Features.Commands.Email.SendEmail;
 using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 using SproutSocial.Application.Features.Commands.Topic.UpdateTopic;
 using SproutSocial.Application.Features.Queries.Blog.GetAllBlogs;
@@ -76,5 +78,7 @@ public class AutoMapperProfile : Profile
         CreateMap<PostCommentCommandRequest, PostCommentDto>().ReverseMap();
         CreateMap<PagenatedListDto<CommentDto>, GetCommentsQueryResponse>()
             .ForMember(dest => dest.Comments, from => from.MapFrom(src => src.Items)).ReverseMap();
+
+        CreateMap<SendEmailCommandRequest, MailRequestDto>().ReverseMap();
     }
 }

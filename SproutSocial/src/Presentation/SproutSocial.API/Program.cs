@@ -1,6 +1,7 @@
 using SproutSocial.API.Extensions.ApplicationExtensions;
 using SproutSocial.API.Extensions.ServiceExtensions;
 using SproutSocial.Application;
+using SproutSocial.Application.Helpers.Settings;
 using SproutSocial.Infrastructure;
 using SproutSocial.Infrastructure.Services.Storage.Local;
 using SproutSocial.Persistence;
@@ -18,6 +19,8 @@ builder.Services.AddStorage<LocalStorage>();
 builder.Services.AddApiVersionService(builder.Configuration["Version"]);
 
 builder.Services.AddApiService();
+
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddJwtAuthenticationService(builder.Configuration["Jwt:Audience"], builder.Configuration["Jwt:Issuer"], builder.Configuration["Jwt:SigningKey"]);
 

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SproutSocial.Application.Abstractions.Email;
 using SproutSocial.Application.Abstractions.Storage;
 using SproutSocial.Application.Abstractions.Token;
 using SproutSocial.Infrastructure.Services.Common;
+using SproutSocial.Infrastructure.Services.Email;
 using SproutSocial.Infrastructure.Services.Storage;
 using SproutSocial.Infrastructure.Services.Token;
 
@@ -15,6 +17,7 @@ public static class ServiceRegistration
         services.AddScoped<ITokenHandler, TokenHandler>();
 
         services.AddTransient<IDateTime, DateTimeService>();
+        services.AddTransient<IMailService, MailService>();
 
         services.AddSingleton<IBaseUrlAccessor, BaseUrlAccessor>();
         return services;
