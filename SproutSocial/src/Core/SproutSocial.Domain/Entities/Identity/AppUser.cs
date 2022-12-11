@@ -7,6 +7,7 @@ public class AppUser : IdentityUser<Guid>
     public string? Fullname { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenEndDate { get; set; }
+    public DateTime? BirthDay { get; set; }
 
     public ICollection<UserTopic>? UserTopics { get; set; }
     public ICollection<Blog>? Blogs { get; set; }
