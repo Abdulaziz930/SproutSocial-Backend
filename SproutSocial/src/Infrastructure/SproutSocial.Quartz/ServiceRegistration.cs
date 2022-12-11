@@ -15,11 +15,11 @@ public static class ServiceRegistration
         services.AddSingleton<IJobFactory, SingletonJobFactory>();
         services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
-        services.AddSingleton<TestJob>();
+        services.AddSingleton<BirthDayJob>();
 
         services.AddSingleton(new JobSchedule(
-            jobType: typeof(TestJob), 
-            cronExpression: Configuration.GetCronExpression(nameof(TestJob))
+            jobType: typeof(BirthDayJob), 
+            cronExpression: Configuration.GetCronExpression(nameof(BirthDayJob))
             ));
 
         services.AddHostedService<QuartzHostedService>();

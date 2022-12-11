@@ -19,8 +19,7 @@ public class SendEmailCommandValidator : AbstractValidator<SendEmailCommandReque
         RuleFor(e => e.Body)
             .NotNull().WithMessage("Body cannot be null")
             .NotEmpty().WithMessage("Body cannot be empty")
-            .MinimumLength(1).WithMessage("Body must not be less than 1 characters")
-            .MaximumLength(500).WithMessage("Body must not exceed 500 characters");
+            .MinimumLength(1).WithMessage("Body must not be less than 1 characters");
 
         RuleFor(e => e.Attachments)
             .ForEach(a =>
