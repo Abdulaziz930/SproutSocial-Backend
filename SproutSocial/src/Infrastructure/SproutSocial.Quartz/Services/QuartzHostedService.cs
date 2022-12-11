@@ -1,7 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Quartz;
-using Quartz.Spi;
-using SproutSocial.Quartz.Models;
 
 namespace SproutSocial.Quartz.Services;
 

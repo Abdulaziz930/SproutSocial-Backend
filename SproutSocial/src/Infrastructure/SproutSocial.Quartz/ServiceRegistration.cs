@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Quartz;
 using Quartz.Impl;
-using Quartz.Spi;
 using SproutSocial.Quartz.Jobs;
-using SproutSocial.Quartz.Models;
 using SproutSocial.Quartz.Services;
 
 namespace SproutSocial.Quartz;

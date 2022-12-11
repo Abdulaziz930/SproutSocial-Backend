@@ -1,7 +1,4 @@
-﻿using Quartz;
-using Quartz.Spi;
-
-namespace SproutSocial.Quartz;
+﻿namespace SproutSocial.Quartz;
 
 public class SingletonJobFactory : IJobFactory
 {
