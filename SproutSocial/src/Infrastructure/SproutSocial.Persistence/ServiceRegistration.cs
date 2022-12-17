@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SproutSocial.Application.Abstractions.Common;
 using SproutSocial.Application.Abstractions.Services;
+using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
-using SproutSocial.Persistence.Contexts;
 using SproutSocial.Persistence.MappingProfiles;
 using SproutSocial.Persistence.Services;
 
@@ -41,12 +40,7 @@ public static class ServiceRegistration
 
         services.AddScoped<ITopicReadRepository, TopicReadRepository>();
 
-        services.AddScoped<ITopicService, TopicService>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IBlogService, BlogService>();
-        services.AddScoped<ICommentService, CommentService>();
-        services.AddScoped<IFollowService, FollowService>();
+        services.RegisterServices<ITopicService, TopicService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
