@@ -33,10 +33,7 @@ public static class ServiceRegistration
 
         services.AddScoped<AppDbContextInitializer>();
 
-        services.AddSingleton(provider => new MapperConfiguration(mc =>
-        {
-            mc.AddProfile(new AutoMapperProfile(provider.GetService<IBaseUrlAccessor>()));
-        }).CreateMapper());
+        services.AddAutoMapperProfiles<TopicMapper>();
 
         services.AddScoped<ITopicReadRepository, TopicReadRepository>();
 
