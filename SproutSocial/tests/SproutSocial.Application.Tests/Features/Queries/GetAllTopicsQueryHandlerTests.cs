@@ -23,7 +23,7 @@ public class GetAllTopicsQueryHandlerTests
         _topicService = new Mock<ITopicService>();
         _baseUrlAccessor = new Mock<IBaseUrlAccessor>();
 
-        var mapperConfig = new MapperConfiguration(config => config.AddProfile(new AutoMapperProfile(_baseUrlAccessor.Object)));
+        var mapperConfig = new MapperConfiguration(config => config.AddProfile(new TopicMapper()));
         _mapper = mapperConfig.CreateMapper();
 
         _handler = new GetAllTopicsQueryHandler(_topicService.Object, _mapper);
