@@ -15,7 +15,7 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
 
     public IQueryable<T> GetAll(bool tracking = true, params string[] includes)
     {
-        var query = _context.Set<T>().AsQueryable();
+        var query = Table.AsQueryable();
         if (includes != null && includes.Length > 0)
         {
             foreach (var item in includes)
