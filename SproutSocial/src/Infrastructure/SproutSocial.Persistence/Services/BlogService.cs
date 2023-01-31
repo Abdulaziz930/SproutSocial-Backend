@@ -77,8 +77,6 @@ public class BlogService : IBlogService
         if (page < 1) throw new PageFormatException();
 
         var blogs = await _unitOfWork.BlogReadRepository.GetFiltered(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted, page, 5, tracking: false, "AppUser", "BlogImage", "BlogTopics.Topic", "BlogLikes.AppUser").ToListAsync();
-        if (blogs == null || blogs.Count == 0)
-            throw new BlogNotFoundException();
 
         var blogsCount = await _unitOfWork.BlogReadRepository.GetTotalCountAsync(b => !string.IsNullOrWhiteSpace(search) ? b.Title.ToLower().Contains(search.ToLower()) : true && !b.IsDeleted);
 
