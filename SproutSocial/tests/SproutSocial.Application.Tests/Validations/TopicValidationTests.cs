@@ -1,13 +1,16 @@
-﻿using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
+﻿using FluentValidation.TestHelper;
+using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 using SproutSocial.Application.Features.Commands.Topic.DeleteTopic;
 using SproutSocial.Application.Features.Commands.Topic.UpdateTopic;
+using SproutSocial.Application.Tests.Validations.Base;
+using Xunit;
 
-namespace Topic.Test.Validation;
+namespace SproutSocial.Application.Tests.Validations;
 
-public class TopicTest : CoreData
+public class TopicValidationTests : CoreData
 {
     [Theory, MemberData(nameof(String101))]
-    public void TopicCreateValidation_NameNullEmptyMin100_ReturnError(string topicName)
+    public void TopucCreateValidation_NameNullEmptyMin255_ReturnError(string topicName)
     {
         //Arrange
         var validation = new CreateTopicCommandValidator();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Topic.Test.Base;
+namespace SproutSocial.Application.Tests.Validations.Base;
 
 public class CoreData
 {
@@ -9,7 +9,8 @@ public class CoreData
     {
         get
         {
-            yield return new object[] { String.Empty };
+            yield return new object[] { "" };
+            yield return new object[] { " " };
             yield return new object[] { null };
             yield return new object[] { new String('*', 101) };
         }

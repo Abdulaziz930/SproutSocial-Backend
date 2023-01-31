@@ -1,0 +1,15 @@
+﻿global using AutoMapper;
+global using Moq;
+global using SproutSocial.Application.Abstractions.Common;
+global using SproutSocial.Application.Abstractions.Services;
+global using SproutSocial.Application.DTOs.TopicDtos;
+global using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
+global using SproutSocial.Persistence.MappingProfiles;
+global using System.Net;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using Xunit;
+global using SproutSocial.Application.DTOs.Common;
+global using SproutSocial.Application.Features.Queries.Topic.GetAllTopics;
+global using System;
+global using System.Collections.Generic;
