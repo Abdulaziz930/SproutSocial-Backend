@@ -6,7 +6,7 @@ using SproutSocial.Application.Features.Commands.Subscribe.Unsubscribe;
 namespace SproutSocial.API.Controllers.v1;
 
 [ApiVersion("1")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize]
 public class SubscribesController : BaseController
 {
     private readonly IMediator _mediator;

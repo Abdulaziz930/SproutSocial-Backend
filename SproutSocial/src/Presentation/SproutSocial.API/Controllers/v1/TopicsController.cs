@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using SproutSocial.Application.Features.Commands.Topic.CreateTopic;
 using SproutSocial.Application.Features.Commands.Topic.DeleteTopic;
 using SproutSocial.Application.Features.Commands.Topic.UpdateTopic;
