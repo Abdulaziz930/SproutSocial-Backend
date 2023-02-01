@@ -27,7 +27,7 @@ public static class JwtAuthenticationServiceExtension
                     ValidAudience = audience,
                     ValidIssuer = issuer,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
-                    LifetimeValidator = (notBefore, expires, securityToken, validationParameters) => expires != null ? expires > DateTime.UtcNow : false,
+                    LifetimeValidator = (_, expires, _, _) => expires != null ? expires > DateTime.UtcNow : false,
 
                     NameClaimType = ClaimTypes.Name
                 };
