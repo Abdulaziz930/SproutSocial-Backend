@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using SproutSocial.Application.Abstractions.Common;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
@@ -16,7 +14,6 @@ public static class ServiceRegistration
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            var a = Configuration.ConnectionString;
             options.UseSqlServer(Configuration.ConnectionString);
         });
         services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
