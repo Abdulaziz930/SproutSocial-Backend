@@ -20,6 +20,8 @@ builder.Services.AddApiVersionService(builder.Configuration["Version"]);
 
 builder.Services.AddApiService();
 
+builder.Services.AddCorsService(builder.Configuration.GetSection("Client:Urls").Get<string[]>());
+
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddJwtAuthenticationService(builder.Configuration["Jwt:Audience"], builder.Configuration["Jwt:Issuer"], builder.Configuration["Jwt:SigningKey"]);
@@ -40,6 +42,8 @@ if (app.Environment.IsDevelopment())
 
     app.AddInitializeApplicationService();
 }
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
