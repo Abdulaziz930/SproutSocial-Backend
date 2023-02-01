@@ -91,8 +91,7 @@ public class TopicService : ITopicService
         if(Guid.TryParse(id, out Guid topicId))
             isExist = await _unitOfWork.TopicReadRepository.IsExistsAsync(t => t.Name.ToLower().Trim() == topic.Name.ToLower().Trim() && !t.IsDeleted && t.Id != topicId);
 
-        if(isExist)
-            throw new TopicAlreadyExistException();
+        if(isExist) throw new TopicAlreadyExistException();
 
         topic.Name = topicDto.Name;
         _unitOfWork.TopicWriteRepository.Update(topic);
