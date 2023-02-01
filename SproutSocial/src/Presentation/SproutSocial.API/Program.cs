@@ -1,3 +1,4 @@
+using Serilog;
 using SproutSocial.API.Extensions.ApplicationExtensions;
 using SproutSocial.API.Extensions.ServiceExtensions;
 using SproutSocial.Application;
@@ -22,6 +23,9 @@ builder.Services.AddApiService();
 
 builder.Services.AddCorsService(builder.Configuration.GetSection("Client:Urls").Get<string[]>());
 
+builder.Host.AddSerilogService(builder.Configuration["ConnectionStrings:Default"]);
+builder.Services.AddHttpLogingService();
+
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddJwtAuthenticationService(builder.Configuration["Jwt:Audience"], builder.Configuration["Jwt:Issuer"], builder.Configuration["Jwt:SigningKey"]);
@@ -42,6 +46,9 @@ if (app.Environment.IsDevelopment())
 
     app.AddInitializeApplicationService();
 }
+
+app.UseSerilogRequestLogging();
+app.UseHttpLogging();
 
 app.UseCors();
 
