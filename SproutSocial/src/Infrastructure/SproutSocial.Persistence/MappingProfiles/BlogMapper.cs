@@ -37,5 +37,7 @@ public class BlogMapper : Profile
         CreateMap<UpdateBlogDto, UpdateBlogCommandRequest>().ReverseMap();
         CreateMap<PagenatedListDto<BlogDto>, GetAllBlogsQueryResponse>()
             .ForMember(dest => dest.Blogs, from => from.MapFrom(src => src.Items)).ReverseMap();
+
+        CreateMap<UpdateBlogDto, Blog>();
     }
 }
