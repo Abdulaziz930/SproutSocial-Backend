@@ -31,6 +31,11 @@ public static class ServiceRegistration
         }).AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(1);
+        });
+
         services.AddScoped<AppDbContextInitializer>();
 
         services.AddAutoMapperProfiles<TopicMapper>();
