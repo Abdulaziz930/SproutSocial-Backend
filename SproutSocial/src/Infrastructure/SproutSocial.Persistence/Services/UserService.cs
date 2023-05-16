@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using SproutSocial.Application.Abstractions.Email;
@@ -21,15 +22,17 @@ public class UserService : IUserService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly LinkGenerator _linkGenerator;
     private readonly IMailService _mailService;
+    private readonly IWebHostEnvironment _environment;
 
     public UserService(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork, LinkGenerator linkGenerator
-        , IMailService mailService)
+        , IMailService mailService, IWebHostEnvironment environment)
     {
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
         _unitOfWork = unitOfWork;
         _linkGenerator = linkGenerator;
         _mailService = mailService;
+        _environment = environment;
     }
 
     public async Task<AddUserTopicReponseDto> AddUserTopicsAsync(List<string> topicIds)
@@ -76,20 +79,10 @@ public class UserService : IUserService
         {
             await _userManager.AddToRoleAsync(user, Roles.Member.ToString());
 
-            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var httpContext = _httpContextAccessor.HttpContext;
-            var request = httpContext.Request;
+            string? url = await GetEmailConfirmationLinkAsync(user);
+            string body = GetEmailConfirmationTemplate(url);
 
-            var url = _linkGenerator.GetUriByAction(
-                httpContext,
-                action: "ConfirmEmail",
-                controller: "Users",
-                values: new { token, email = user.Email },
-                scheme: request.Scheme,
-                host: request.Host
-            );
-
-            await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "SproutSocial email confirmation for activate account", Body = $"<a href='{url}'>activate account</a>" });
+            await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "SproutSocial email confirmation for activate account", Body = body });
 
             return new()
             {
@@ -171,5 +164,36 @@ public class UserService : IUserService
         }
 
         throw new UserNotFoundException("User cannot be null");
+    }
+
+    private async Task<string?> GetEmailConfirmationLinkAsync(AppUser user)
+    {
+        string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var httpContext = _httpContextAccessor.HttpContext;
+        var request = httpContext.Request;
+
+        string? url = _linkGenerator.GetUriByAction(
+            httpContext,
+            action: "ConfirmEmail",
+            controller: "Users",
+            values: new { token, email = user.Email },
+            scheme: request.Scheme,
+            host: request.Host
+        );
+
+        return url;
+    }
+
+    private string GetEmailConfirmationTemplate(string url)
+    {
+        var filePath = $"{_environment.WebRootPath}/templates/EmailConfirmation.html";
+
+        StreamReader streamReader = new StreamReader(filePath);
+        string mailText = streamReader.ReadToEnd();
+        streamReader.Close();
+
+        mailText = mailText.Replace("[ConfirmationLink]", url);
+
+        return mailText;
     }
 }
