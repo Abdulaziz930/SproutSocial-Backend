@@ -5,7 +5,9 @@ using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Exceptions.Authentication;
 using SproutSocial.Application.Exceptions.Authentication.Token;
 using SproutSocial.Application.Exceptions.Users;
+using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
+using System.Net;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -46,6 +48,25 @@ public class AuthService : IAuthService
         }
 
         throw new AuthenticationFailException();
+    }
+
+    public async Task<ConfirmEmailResponseDto> ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto)
+    {
+        confirmEmailDto.Token.ThrowIfNullOrWhiteSpace(message: "Token cannot be null");
+        confirmEmailDto.Email.ThrowIfNullOrWhiteSpace(message: "Email cannot be null");
+
+        var user = await _userManager.FindByEmailAsync(confirmEmailDto.Email);
+        if(user is null)
+            throw new UserNotFoundException($"User not found by email: {confirmEmailDto.Email}", HttpStatusCode.BadRequest);
+
+        if (await _userManager.IsEmailConfirmedAsync(user))
+            throw new EmailConfirmationException("This account already activated");
+
+        var result = await _userManager.ConfirmEmailAsync(user, confirmEmailDto.Token);
+        if(!result.Succeeded)
+            throw new EmailConfirmationException(result.Errors);
+
+        return new(true, $"User successfully activated. Username: {user.UserName}");
     }
 
     public async Task<TokenResponseDto> RefreshTokenLoginAsync(string refreshToken)
