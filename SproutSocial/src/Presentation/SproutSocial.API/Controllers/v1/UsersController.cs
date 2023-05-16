@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
+using SproutSocial.Application.Features.Commands.AppUser.ConfirmEmail;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
@@ -26,6 +27,14 @@ public class UsersController : BaseController
     public async Task<IActionResult> Register(CreateUserCommandRequest createUserCommandRequest)
     {
         var response = await _mediator.Send(createUserCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response.Message);
+    }
+
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailCommandRequest confirmEmailCommandRequest)
+    {
+        var response = await _mediator.Send(confirmEmailCommandRequest);
 
         return StatusCode((int)response.StatusCode, response.Message);
     }
@@ -100,4 +109,6 @@ public class UsersController : BaseController
 
         return StatusCode((int)response.StatusCode, response);
     }
+
+
 }
