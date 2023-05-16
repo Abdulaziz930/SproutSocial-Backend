@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SproutSocial.Application.DTOs.UserDtos;
+using SproutSocial.Application.Features.Commands.AppUser.ConfirmEmail;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
@@ -13,5 +14,6 @@ public class AuthMapper : Profile
         CreateMap<CreateUserDto, CreateUserCommandRequest>().ReverseMap();
         CreateMap<TokenResponseDto, RefreshTokenLoginCommandResponse>().ReverseMap();
         CreateMap<LoginDto, LoginUserCommandRequest>().ReverseMap();
+        CreateMap<ConfirmEmailDto, ConfirmEmailCommandRequest>().ReverseMap();
     }
 }
