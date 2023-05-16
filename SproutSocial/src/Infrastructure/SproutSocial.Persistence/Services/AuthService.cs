@@ -34,6 +34,9 @@ public class AuthService : IAuthService
         if (user == null)
             throw new AuthenticationFailException();
 
+        if (!await _userManager.IsEmailConfirmedAsync(user))
+            throw new EmailNotConfirmedException();
+
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
         if (result.Succeeded)
         {
