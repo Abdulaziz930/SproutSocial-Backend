@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
+using SproutSocial.Application.Abstractions.Email;
 using SproutSocial.Application.Abstractions.Services;
+using SproutSocial.Application.DTOs.MailDtos;
 using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Exceptions.Authentication;
 using SproutSocial.Application.Exceptions.Blogs;
@@ -16,12 +19,17 @@ public class UserService : IUserService
     private readonly UserManager<AppUser> _userManager;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly LinkGenerator _linkGenerator;
+    private readonly IMailService _mailService;
 
-    public UserService(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork)
+    public UserService(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork, LinkGenerator linkGenerator
+        , IMailService mailService)
     {
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
         _unitOfWork = unitOfWork;
+        _linkGenerator = linkGenerator;
+        _mailService = mailService;
     }
 
     public async Task<AddUserTopicReponseDto> AddUserTopicsAsync(List<string> topicIds)
@@ -67,10 +75,26 @@ public class UserService : IUserService
         if (result.Succeeded)
         {
             await _userManager.AddToRoleAsync(user, Roles.Member.ToString());
+
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var httpContext = _httpContextAccessor.HttpContext;
+            var request = httpContext.Request;
+
+            var url = _linkGenerator.GetUriByAction(
+                httpContext,
+                action: "ConfirmEmail",
+                controller: "Users",
+                values: new { token, email = user.Email },
+                scheme: request.Scheme,
+                host: request.Host
+            );
+
+            await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "SproutSocial email confirmation for activate account", Body = $"<a href='{url}'>activate account</a>" });
+
             return new()
             {
                 IsSuccess = true,
-                Message = "User successfully created"
+                Message = "User successfully created. To login to your account, please activate your account by clicking on the link sent to your email address."
             };
         }
 
