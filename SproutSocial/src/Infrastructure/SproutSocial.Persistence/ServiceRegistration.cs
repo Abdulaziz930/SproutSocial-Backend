@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Helpers.Extesions;
@@ -25,6 +26,8 @@ public static class ServiceRegistration
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
             options.Password.RequiredLength = 8;
+
+            options.SignIn.RequireConfirmedEmail = true;
         }).AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
