@@ -18,4 +18,8 @@ public static class Validators
         return formFile.Length < kb * 1000;
     }
 
+    public static bool IsNumber(string number)
+    {
+        return int.TryParse(number, out var result);
+    }
 }
