@@ -19,9 +19,15 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommandRequest, 
 
         return new()
         {
-            AccessToken = result.AccessToken,
-            Expiration = result.Expiration,
-            RefreshToken = result.RefreshToken
+            RequiresTwoFactor = result.RequiresTwoFactor,
+            TokenResponse = result.TokenResponse is null 
+            ? null 
+            : new LoginUserCommandTokenResponse
+            {
+                AccessToken = result.TokenResponse.AccessToken,
+                Expiration = result.TokenResponse.Expiration,
+                RefreshToken = result.TokenResponse.RefreshToken,
+            }
         };
     }
 }
