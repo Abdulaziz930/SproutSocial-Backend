@@ -5,6 +5,7 @@ using SproutSocial.Application.Features.Commands.AppUser.ConfirmEmail;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
+using SproutSocial.Application.Features.Commands.AppUser.TwoFaLogin;
 using SproutSocial.Application.Features.Commands.Blog.RemoveSavedBlog;
 using SproutSocial.Application.Features.Commands.Blog.SaveBlog;
 using SproutSocial.Application.Features.Commands.Follow.AcceptOrDecline;
@@ -51,6 +52,14 @@ public class UsersController : BaseController
     public async Task<IActionResult> RefreshTokenLogin(RefreshTokenLoginCommandRequest refreshTokenLoginCommandRequest)
     {
         var response = await _mediator.Send(refreshTokenLoginCommandRequest);
+
+        return Ok(response);
+    }
+
+    [HttpPost("TwoFaLogin")]
+    public async Task<IActionResult> TwoFaLogin(TwoFaLoginCommandRequest twoFaLoginCommandRequest)
+    {
+        var response = await _mediator.Send(twoFaLoginCommandRequest);
 
         return Ok(response);
     }
