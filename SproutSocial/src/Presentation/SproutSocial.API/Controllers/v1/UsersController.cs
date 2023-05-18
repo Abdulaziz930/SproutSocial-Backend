@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
 using SproutSocial.Application.Features.Commands.AppUser.ConfirmEmail;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
+using SproutSocial.Application.Features.Commands.AppUser.EnableTwoFa;
 using SproutSocial.Application.Features.Commands.AppUser.GAuthLogin;
+using SproutSocial.Application.Features.Commands.AppUser.GetTwoFaSetup;
 using SproutSocial.Application.Features.Commands.AppUser.GoogleAuthenticator;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
@@ -59,6 +61,24 @@ public class UsersController : BaseController
         return Ok(response);
     }
 
+    [Authorize]
+    [HttpGet("TwoFaSetup/{Email}")]
+    public async Task<IActionResult> TwoFaSetup([FromRoute] GetTwoFaSetupCommandRequest getTwoFaSetupCommandRequest)
+    {
+        var response = await _mediator.Send(getTwoFaSetupCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response.Message);
+    }
+
+    [Authorize]
+    [HttpPost("EnableTwoFa")]
+    public async Task<IActionResult> EnableTwoFa(EnableTwoFaCommandRequest enableTwoFaCommandRequest)
+    {
+        var response = await _mediator.Send(enableTwoFaCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response.Message);
+    }
+
     [HttpPost("TwoFaLogin")]
     public async Task<IActionResult> TwoFaLogin(TwoFaLoginCommandRequest twoFaLoginCommandRequest)
     {
@@ -67,6 +87,7 @@ public class UsersController : BaseController
         return Ok(response);
     }
 
+    [Authorize]
     [HttpGet("gauth-setup/{Email}")]
     public async Task<IActionResult> GAuthSetup([FromRoute] GAuthSetupQueryRequest gAuthSetupQueryRequest)
     {
@@ -77,6 +98,7 @@ public class UsersController : BaseController
         return File(imageData, "image/png");
     }
 
+    [Authorize]
     [HttpPost("gauth-setup")]
     public async Task<IActionResult> GAuthSetup(SetGAuthCommandRequest setGAuthCommandRequest)
     {
@@ -147,6 +169,4 @@ public class UsersController : BaseController
 
         return StatusCode((int)response.StatusCode, response);
     }
-
-
 }
