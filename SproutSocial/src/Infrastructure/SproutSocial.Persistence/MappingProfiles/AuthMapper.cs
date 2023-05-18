@@ -2,6 +2,7 @@
 using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Features.Commands.AppUser.ConfirmEmail;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
+using SproutSocial.Application.Features.Commands.AppUser.EnableTwoFa;
 using SproutSocial.Application.Features.Commands.AppUser.GAuthLogin;
 using SproutSocial.Application.Features.Commands.AppUser.GoogleAuthenticator;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
@@ -21,5 +22,6 @@ public class AuthMapper : Profile
         CreateMap<TwoFaLoginDto, TwoFaLoginCommandRequest>().ReverseMap();
         CreateMap<SetGAuthDto, SetGAuthCommandRequest>().ReverseMap();
         CreateMap<TwoFaLoginDto, GAuthLoginCommandRequest>().ReverseMap();
+        CreateMap<EnableTwoFaDto, EnableTwoFaCommandRequest>().ReverseMap();
     }
 }
