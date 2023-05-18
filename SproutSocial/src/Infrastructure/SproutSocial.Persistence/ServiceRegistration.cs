@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
 using SproutSocial.Persistence.MappingProfiles;
 using SproutSocial.Persistence.Services;
+using SproutSocial.Persistence.TokenProviders;
 
 namespace SproutSocial.Persistence;
 
@@ -17,6 +17,9 @@ public static class ServiceRegistration
         {
             options.UseSqlServer(Configuration.ConnectionString);
         });
+
+        services.AddScoped<GoogleAuthenticatorTokenProvider<AppUser>>();
+
         services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
         {
             options.User.RequireUniqueEmail = true;
@@ -28,6 +31,9 @@ public static class ServiceRegistration
             options.Password.RequiredLength = 8;
 
             options.SignIn.RequireConfirmedEmail = true;
+
+            options.Tokens.ProviderMap["Google Authenticator"] = new TokenProviderDescriptor(
+                typeof(GoogleAuthenticatorTokenProvider<AppUser>));
         }).AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
