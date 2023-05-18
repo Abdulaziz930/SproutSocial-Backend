@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SproutSocial.Domain.Enums;
 
 namespace SproutSocial.Domain.Entities.Identity;
 
@@ -8,6 +9,7 @@ public class AppUser : IdentityUser<Guid>
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenEndDate { get; set; }
     public DateTime? BirthDay { get; set; }
+    public TwoFactorAuthMethod? TwoFactorAuthMethod { get; set; }
 
     public ICollection<UserTopic>? UserTopics { get; set; }
     public ICollection<Blog>? Blogs { get; set; }
