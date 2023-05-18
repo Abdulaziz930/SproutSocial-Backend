@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using SproutSocial.Application.Features.Commands.AppUser.AddUserTopic;
 using SproutSocial.Application.Features.Commands.AppUser.ConfirmEmail;
 using SproutSocial.Application.Features.Commands.AppUser.CreateUser;
+using SproutSocial.Application.Features.Commands.AppUser.GAuthLogin;
+using SproutSocial.Application.Features.Commands.AppUser.GoogleAuthenticator;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
 using SproutSocial.Application.Features.Commands.AppUser.TwoFaLogin;
@@ -11,6 +13,7 @@ using SproutSocial.Application.Features.Commands.Blog.SaveBlog;
 using SproutSocial.Application.Features.Commands.Follow.AcceptOrDecline;
 using SproutSocial.Application.Features.Commands.Follow.MakeFollow;
 using SproutSocial.Application.Features.Commands.Follow.UnFollow;
+using SproutSocial.Application.Features.Queries.GoogleAuthenticator;
 
 namespace SproutSocial.API.Controllers.v1;
 
@@ -60,6 +63,32 @@ public class UsersController : BaseController
     public async Task<IActionResult> TwoFaLogin(TwoFaLoginCommandRequest twoFaLoginCommandRequest)
     {
         var response = await _mediator.Send(twoFaLoginCommandRequest);
+
+        return Ok(response);
+    }
+
+    [HttpGet("gauth-setup/{Email}")]
+    public async Task<IActionResult> GAuthSetup([FromRoute] GAuthSetupQueryRequest gAuthSetupQueryRequest)
+    {
+        var response = await _mediator.Send(gAuthSetupQueryRequest);
+
+        byte[] imageData = Convert.FromBase64String(response.QrCode.Split(',')[1]);
+
+        return File(imageData, "image/png");
+    }
+
+    [HttpPost("gauth-setup")]
+    public async Task<IActionResult> GAuthSetup(SetGAuthCommandRequest setGAuthCommandRequest)
+    {
+        var response = await _mediator.Send(setGAuthCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response.Message);
+    }
+
+    [HttpPost("GAuthLogin")]
+    public async Task<IActionResult> GAuthLogin(GAuthLoginCommandRequest gAuthLoginCommandRequest)
+    {
+        var response = await _mediator.Send(gAuthLoginCommandRequest);
 
         return Ok(response);
     }
