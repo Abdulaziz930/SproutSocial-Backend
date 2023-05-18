@@ -8,6 +8,7 @@ using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Exceptions.Authentication;
 using SproutSocial.Application.Exceptions.Authentication.Token;
 using SproutSocial.Application.Exceptions.Users;
+using SproutSocial.Application.Helpers;
 using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
 using SproutSocial.Domain.Enums;
@@ -113,7 +114,7 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {email}", HttpStatusCode.BadRequest);
 
-        string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+        string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email));
         await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "2FA Code for enable 2FA", Body = $"Here is your code: {twoFaCode}" });
 
         return new(IsSuccess: true, Message: "2FA code sent to your email for enable 2FA");
@@ -125,7 +126,7 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {enableTwoFaDto.Email}", HttpStatusCode.BadRequest);
 
-        bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", enableTwoFaDto.Code);
+        bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email), enableTwoFaDto.Code);
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
@@ -141,7 +142,7 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {twoFaLoginDto.Email}", HttpStatusCode.BadRequest);
 
-        bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", twoFaLoginDto.Code);
+        bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email), twoFaLoginDto.Code);
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
@@ -156,11 +157,12 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {email}", HttpStatusCode.BadRequest);
 
-        var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, "Google Authenticator", "2FA");
+        string tokenProviderName = EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.GoogleAuthenticator);
+        var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, tokenProviderName, "2FA");
         if (authenticatorKey == null)
         {
-            authenticatorKey = await _userManager.GenerateUserTokenAsync(user, "Google Authenticator", "2FA");
-            await _userManager.SetAuthenticationTokenAsync(user, "Google Authenticator", "2FA", authenticatorKey);
+            authenticatorKey = await _userManager.GenerateUserTokenAsync(user, tokenProviderName, "2FA");
+            await _userManager.SetAuthenticationTokenAsync(user, tokenProviderName, "2FA", authenticatorKey);
         }
 
         TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
@@ -177,7 +179,7 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {setGAuthDto.Email}", HttpStatusCode.BadRequest);
 
-        var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, "Google Authenticator", "2FA"); ;
+        var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.GoogleAuthenticator), "2FA"); ;
         if (authenticatorKey is null)
             throw new UserNotRegisteredGAuthException();
 
@@ -199,7 +201,7 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {twoFaLoginDto.Email}", HttpStatusCode.BadRequest);
 
-        var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, "Google Authenticator", "2FA"); ;
+        var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.GoogleAuthenticator), "2FA");
         if (authenticatorKey is null)
             throw new UserNotRegisteredGAuthException();
 
