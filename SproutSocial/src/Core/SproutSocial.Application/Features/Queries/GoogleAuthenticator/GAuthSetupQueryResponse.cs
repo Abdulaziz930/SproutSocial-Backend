@@ -2,5 +2,5 @@
 
 public class GAuthSetupQueryResponse
 {
-    public string? QrCode { get; set; }
+    public byte[] QrCode { get; set; }
 }

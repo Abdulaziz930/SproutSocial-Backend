@@ -151,7 +151,7 @@ public class AuthService : IAuthService
         throw new AuthenticationFailException("Invalid Code");
     }
 
-    public async Task<string> GetGAuthSetup(string email)
+    public async Task<byte[]> GetGAuthSetup(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user is null)
@@ -167,8 +167,9 @@ public class AuthService : IAuthService
         TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
 
         var setupInfo = tfa.GenerateSetupCode("SproutSocial", user.Email, authenticatorKey, false, 3);
+        byte[] imageData = Convert.FromBase64String(setupInfo.QrCodeSetupImageUrl.Split(',')[1]);
 
-        return setupInfo.QrCodeSetupImageUrl;
+        return imageData;
     }
 
     public async Task SetGAuth(SetGAuthDto setGAuthDto)

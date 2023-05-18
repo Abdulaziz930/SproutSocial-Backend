@@ -93,9 +93,7 @@ public class UsersController : BaseController
     {
         var response = await _mediator.Send(gAuthSetupQueryRequest);
 
-        byte[] imageData = Convert.FromBase64String(response.QrCode.Split(',')[1]);
-
-        return File(imageData, "image/png");
+        return File(response.QrCode, "image/png");
     }
 
     [Authorize]
