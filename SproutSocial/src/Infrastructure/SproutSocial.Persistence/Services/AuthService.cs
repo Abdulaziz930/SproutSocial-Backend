@@ -52,8 +52,6 @@ public class AuthService : IAuthService
             {
                 if (user.TwoFactorAuthMethod == TwoFactorAuthMethod.Email)
                 {
-                    await _signInManager.PasswordSignInAsync(user, model.Password, false, true);
-
                     string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
                     await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "2FA Code", Body = $"Here is your code: {twoFaCode}" });
                 }
@@ -112,7 +110,7 @@ public class AuthService : IAuthService
         email.ThrowIfNullOrWhiteSpace(message: "Token cannot be null");
 
         var user = await _userManager.FindByEmailAsync(email);
-        if(user is null)
+        if (user is null)
             throw new UserNotFoundException($"User not found by email: {email}", HttpStatusCode.BadRequest);
 
         string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
@@ -128,7 +126,7 @@ public class AuthService : IAuthService
             throw new UserNotFoundException($"User not found by email: {enableTwoFaDto.Email}", HttpStatusCode.BadRequest);
 
         bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", enableTwoFaDto.Code);
-        if(!isValidCode)
+        if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
         await _userManager.SetTwoFactorEnabledAsync(user, true);
@@ -140,15 +138,16 @@ public class AuthService : IAuthService
     public async Task<TokenResponseDto> TwoFaLoginAsync(TwoFaLoginDto twoFaLoginDto, int accessTokenLifeTime)
     {
         var user = await _userManager.FindByEmailAsync(twoFaLoginDto.Email);
-        var result = await _signInManager.TwoFactorSignInAsync("Email", twoFaLoginDto.Code, false, false);
-        if (result.Succeeded)
-        {
-            var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
-            await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
-            return tokenResponse;
-        }
+        if (user is null)
+            throw new UserNotFoundException($"User not found by email: {twoFaLoginDto.Email}", HttpStatusCode.BadRequest);
 
-        throw new AuthenticationFailException("Invalid Code");
+        bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", twoFaLoginDto.Code);
+        if (!isValidCode)
+            throw new AuthenticationFailException("Invalid Code");
+
+        var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
+        await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
+        return tokenResponse;
     }
 
     public async Task<byte[]> GetGAuthSetup(string email)
