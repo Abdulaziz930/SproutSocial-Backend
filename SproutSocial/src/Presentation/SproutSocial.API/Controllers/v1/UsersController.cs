@@ -88,7 +88,7 @@ public class UsersController : BaseController
     }
 
     [Authorize]
-    [HttpGet("gauth-setup/{Email}")]
+    [HttpGet("GAuthSetup/{Email}")]
     public async Task<IActionResult> GAuthSetup([FromRoute] GAuthSetupQueryRequest gAuthSetupQueryRequest)
     {
         var response = await _mediator.Send(gAuthSetupQueryRequest);
@@ -97,8 +97,8 @@ public class UsersController : BaseController
     }
 
     [Authorize]
-    [HttpPost("gauth-setup")]
-    public async Task<IActionResult> GAuthSetup(SetGAuthCommandRequest setGAuthCommandRequest)
+    [HttpPost("EnableGAuth")]
+    public async Task<IActionResult> EnableGAuth(SetGAuthCommandRequest setGAuthCommandRequest)
     {
         var response = await _mediator.Send(setGAuthCommandRequest);
 

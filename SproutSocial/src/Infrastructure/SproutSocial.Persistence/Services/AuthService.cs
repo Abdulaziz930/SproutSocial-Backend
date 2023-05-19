@@ -166,7 +166,7 @@ public class AuthService : IAuthService
         return tokenResponse;
     }
 
-    public async Task<byte[]> GetGAuthSetup(string email)
+    public async Task<byte[]> GetGAuthSetupAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user is null)
@@ -188,7 +188,7 @@ public class AuthService : IAuthService
         return imageData;
     }
 
-    public async Task SetGAuth(SetGAuthDto setGAuthDto)
+    public async Task EnableGAuthAsync(SetGAuthDto setGAuthDto)
     {
         var user = await _userManager.FindByEmailAsync(setGAuthDto.Email);
         if (user is null)
@@ -210,7 +210,7 @@ public class AuthService : IAuthService
         await _userManager.UpdateAsync(user);
     }
 
-    public async Task<TokenResponseDto> GAuthLogin(TwoFaLoginDto twoFaLoginDto, int accessTokenLifeTime)
+    public async Task<TokenResponseDto> GAuthLoginAsync(TwoFaLoginDto twoFaLoginDto, int accessTokenLifeTime)
     {
         var user = await _userManager.FindByEmailAsync(twoFaLoginDto.Email);
         if (user is null)

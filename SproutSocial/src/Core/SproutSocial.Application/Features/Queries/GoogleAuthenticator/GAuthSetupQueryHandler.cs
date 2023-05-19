@@ -11,7 +11,7 @@ public class GAuthSetupQueryHandler : IRequestHandler<GAuthSetupQueryRequest, GA
 
     public async Task<GAuthSetupQueryResponse> Handle(GAuthSetupQueryRequest request, CancellationToken cancellationToken)
     {
-        var result = await _authService.GetGAuthSetup(request.Email);
+        var result = await _authService.GetGAuthSetupAsync(request.Email);
 
         return new()
         {

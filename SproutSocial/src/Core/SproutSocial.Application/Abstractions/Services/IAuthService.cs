@@ -10,7 +10,7 @@ public interface IAuthService
     Task<GetTwoFaSetupResponseDto> GetTwoFaSetupAsync(string email);
     Task EnableTwoFaAsync(EnableTwoFaDto enableTwoFaDto);
     Task<TokenResponseDto> TwoFaLoginAsync(TwoFaLoginDto twoFaLoginDto, int accessTokenLifeTime);
-    Task<byte[]> GetGAuthSetup(string email);
-    Task SetGAuth(SetGAuthDto setGAuthDto);
-    Task<TokenResponseDto> GAuthLogin(TwoFaLoginDto twoFaLoginDto, int accessTokenLifeTime);
+    Task<byte[]> GetGAuthSetupAsync(string email);
+    Task EnableGAuthAsync(SetGAuthDto setGAuthDto);
+    Task<TokenResponseDto> GAuthLoginAsync(TwoFaLoginDto twoFaLoginDto, int accessTokenLifeTime);
 }

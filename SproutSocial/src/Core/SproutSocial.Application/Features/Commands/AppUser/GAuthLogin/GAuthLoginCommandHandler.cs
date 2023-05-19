@@ -17,7 +17,7 @@ public class GAuthLoginCommandHandler : IRequestHandler<GAuthLoginCommandRequest
     {
         TwoFaLoginDto twoFaLoginDto = _mapper.Map<TwoFaLoginDto>(request);
 
-        var result = await _authService.GAuthLogin(twoFaLoginDto, 2);
+        var result = await _authService.GAuthLoginAsync(twoFaLoginDto, 2);
 
         return new()
         {

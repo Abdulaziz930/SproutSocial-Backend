@@ -17,7 +17,7 @@ public class SetGAuthCommandHandler : IRequestHandler<SetGAuthCommandRequest, Se
     {
         SetGAuthDto setGAuthDto = _mapper.Map<SetGAuthDto>(request);
 
-        await _authService.SetGAuth(setGAuthDto);
+        await _authService.EnableGAuthAsync(setGAuthDto);
 
         return new()
         {
