@@ -20,6 +20,7 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommandRequest, 
         return new()
         {
             RequiresTwoFactor = result.RequiresTwoFactor,
+            TwoFactorAuthMethod = result.TwoFactorAuthMethod,
             TokenResponse = result.TokenResponse is null 
             ? null 
             : new LoginUserCommandTokenResponse

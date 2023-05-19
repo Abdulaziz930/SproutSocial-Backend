@@ -51,14 +51,18 @@ public class AuthService : IAuthService
         {
             if (user.TwoFactorEnabled)
             {
+                TwoFactorAuthMethod? twoFactorAuthMethod = null;
                 if (user.TwoFactorAuthMethod == TwoFactorAuthMethod.Email)
                 {
-                    string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                    string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email));
                     await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "2FA Code", Body = $"Here is your code: {twoFaCode}" });
+                    twoFactorAuthMethod = TwoFactorAuthMethod.Email;
                 }
+                else twoFactorAuthMethod = TwoFactorAuthMethod.GoogleAuthenticator;
 
-                return new() { RequiresTwoFactor = true };
+                return new() { RequiresTwoFactor = true, TwoFactorAuthMethod = twoFactorAuthMethod };
             }
+
             var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
             await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
             return new()

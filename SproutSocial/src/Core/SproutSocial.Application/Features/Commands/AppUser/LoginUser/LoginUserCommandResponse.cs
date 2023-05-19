@@ -1,8 +1,11 @@
-﻿namespace SproutSocial.Application.Features.Commands.AppUser.LoginUser;
+﻿using SproutSocial.Domain.Enums;
+
+namespace SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 
 public class LoginUserCommandResponse
 {
     public bool RequiresTwoFactor { get; set; }
+    public TwoFactorAuthMethod? TwoFactorAuthMethod { get; set; }
     public LoginUserCommandTokenResponse? TokenResponse { get; set; }
 }
 
