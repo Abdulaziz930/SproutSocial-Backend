@@ -32,5 +32,11 @@ public class GAuthLoginCommandValidator : AbstractValidator<GAuthLoginCommandReq
                     context.AddFailure("Please enter valid email address");
                 }
             });
+
+        RuleFor(x => x.TwoFaSecurityToken)
+            .NotNull()
+            .WithMessage("Security token cannot be null")
+            .NotEmpty()
+            .WithMessage("Security token cannot be empty");
     }
 }

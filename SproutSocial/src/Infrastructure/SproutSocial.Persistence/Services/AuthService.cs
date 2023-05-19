@@ -1,5 +1,6 @@
 ﻿using Google.Authenticator;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using SproutSocial.Application.Abstractions.Email;
 using SproutSocial.Application.Abstractions.Services;
 using SproutSocial.Application.Abstractions.Token;
@@ -13,6 +14,8 @@ using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
 using SproutSocial.Domain.Enums;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SproutSocial.Persistence.Services;
 
@@ -23,15 +26,17 @@ public class AuthService : IAuthService
     private readonly ITokenHandler _tokenHandler;
     private readonly IUserService _userService;
     private readonly IMailService _mailService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager
-        , ITokenHandler tokenHandler, IUserService userService, IMailService mailService)
+        , ITokenHandler tokenHandler, IUserService userService, IMailService mailService, IConfiguration configuration)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenHandler = tokenHandler;
         _userService = userService;
         _mailService = mailService;
+        _configuration = configuration;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginDto model, int accessTokenLifeTime)
@@ -60,7 +65,9 @@ public class AuthService : IAuthService
                 }
                 else twoFactorAuthMethod = TwoFactorAuthMethod.GoogleAuthenticator;
 
-                return new() { RequiresTwoFactor = true, TwoFactorAuthMethod = twoFactorAuthMethod };
+                string twoFaSecurityToken = GenerateTwoFaUserSecurityToken(user.Id, _configuration["TwoFaSecretKey"]);
+
+                return new() { RequiresTwoFactor = true, TwoFactorAuthMethod = twoFactorAuthMethod, TwoFaSecurityToken = twoFaSecurityToken };
             }
 
             var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
@@ -146,6 +153,10 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {twoFaLoginDto.Email}", HttpStatusCode.BadRequest);
 
+        bool isValidToken = VerifyTwoFaUserSecurityToken(user.Id, twoFaLoginDto.TwoFaSecurityToken, _configuration["TwoFaSecretKey"]);
+        if(!isValidToken)
+            throw new AuthenticationFailException("Please enter username/email and password");
+
         bool isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email), twoFaLoginDto.Code);
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
@@ -205,6 +216,10 @@ public class AuthService : IAuthService
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {twoFaLoginDto.Email}", HttpStatusCode.BadRequest);
 
+        bool isValidToken = VerifyTwoFaUserSecurityToken(user.Id, twoFaLoginDto.TwoFaSecurityToken, _configuration["TwoFaSecretKey"]);
+        if (!isValidToken)
+            throw new AuthenticationFailException("Please enter username/email and password");
+
         var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.GoogleAuthenticator), "2FA");
         if (authenticatorKey is null)
             throw new UserNotRegisteredGAuthException();
@@ -218,5 +233,25 @@ public class AuthService : IAuthService
         var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
         await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
         return tokenResponse;
+    }
+
+    private string GenerateTwoFaUserSecurityToken(Guid userId, string secretKey)
+    {
+        string data = userId.ToString();
+        byte[] keyBytes = Encoding.UTF8.GetBytes(secretKey);
+        byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+        using (var hmac = new HMACSHA256(keyBytes))
+        {
+            byte[] hashBytes = hmac.ComputeHash(dataBytes);
+            string token = Convert.ToBase64String(hashBytes);
+            return token;
+        }
+    }
+
+    private bool VerifyTwoFaUserSecurityToken(Guid userId, string token, string secretKey)
+    {
+        string expectedToken = GenerateTwoFaUserSecurityToken(userId, secretKey);
+        return token.Equals(expectedToken);
     }
 }

@@ -21,6 +21,7 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommandRequest, 
         {
             RequiresTwoFactor = result.RequiresTwoFactor,
             TwoFactorAuthMethod = result.TwoFactorAuthMethod,
+            TwoFaSecurityToken = result.TwoFaSecurityToken,
             TokenResponse = result.TokenResponse is null 
             ? null 
             : new LoginUserCommandTokenResponse
