@@ -9,7 +9,6 @@ public class AppUser : IdentityUser<Guid>
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenEndDate { get; set; }
     public DateTime? BirthDay { get; set; }
-    public TwoFactorAuthMethod? TwoFactorAuthMethod { get; set; }
 
     public ICollection<UserTopic>? UserTopics { get; set; }
     public ICollection<Blog>? Blogs { get; set; }
@@ -19,4 +18,5 @@ public class AppUser : IdentityUser<Guid>
     public ICollection<SavedBlog>? SavedBlogs { get; set; }
     public ICollection<UserFollow> FollowRequestsMade { get; set; }
     public ICollection<UserFollow> FollowRequestsAccepted { get; set; }
+    public ICollection<UserTwoFaMethod> UserTwoFaMethods { get; set; }
 }
