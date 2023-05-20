@@ -5,7 +5,7 @@ namespace SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 public class LoginUserCommandResponse
 {
     public bool RequiresTwoFactor { get; set; }
-    public TwoFactorAuthMethod? TwoFactorAuthMethod { get; set; }
+    public TwoFactorAuthMethod TwoFactorAuthMethod { get; set; }
     public string? TwoFaSecurityToken { get; set; }
     public LoginUserCommandTokenResponse? TokenResponse { get; set; }
 }
