@@ -27,9 +27,11 @@ public class AuthService : IAuthService
     private readonly IUserService _userService;
     private readonly IMailService _mailService;
     private readonly IConfiguration _configuration;
+    private readonly IUnitOfWork _unitOfWork;
 
     public AuthService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager
-        , ITokenHandler tokenHandler, IUserService userService, IMailService mailService, IConfiguration configuration)
+        , ITokenHandler tokenHandler, IUserService userService, IMailService mailService, IConfiguration configuration
+        , IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -37,14 +39,16 @@ public class AuthService : IAuthService
         _userService = userService;
         _mailService = mailService;
         _configuration = configuration;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginDto model, int accessTokenLifeTime)
     {
-        var user = await _userManager.FindByNameAsync(model.UsernameOrEmail);
-        if (user == null)
-            user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
+        var query = _userManager.Users.Include(u => u.UserTwoFaMethods)
+            .ThenInclude(ut => ut.TwoFaMethod).AsQueryable();
 
+        var user = await query.SingleOrDefaultAsync(u => u.UserName == model.UsernameOrEmail) 
+            ?? await query.SingleOrDefaultAsync(u => u.Email == model.UsernameOrEmail);
         if (user == null)
             throw new AuthenticationFailException();
 
@@ -56,8 +60,8 @@ public class AuthService : IAuthService
         {
             if (user.TwoFactorEnabled)
             {
-                TwoFactorAuthMethod? twoFactorAuthMethod = null;
-                if (user.TwoFactorAuthMethod == TwoFactorAuthMethod.Email)
+                TwoFactorAuthMethod twoFactorAuthMethod = TwoFactorAuthMethod.None;
+                if(user.UserTwoFaMethods.Any(ut => ut.TwoFaMethod.TwoFactorAuthMethod == TwoFactorAuthMethod.Email && ut.IsSelected))
                 {
                     string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email));
                     await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "2FA Code", Body = $"Here is your code: {twoFaCode}" });
@@ -75,7 +79,8 @@ public class AuthService : IAuthService
             return new()
             {
                 RequiresTwoFactor = false,
-                TokenResponse = tokenResponse
+                TokenResponse = tokenResponse,
+                TwoFactorAuthMethod = TwoFactorAuthMethod.None
             };
         }
 
@@ -121,9 +126,14 @@ public class AuthService : IAuthService
     {
         email.ThrowIfNullOrWhiteSpace(message: "Token cannot be null");
 
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userManager.Users.Include(u => u.UserTwoFaMethods)
+            .ThenInclude(ut => ut.TwoFaMethod)
+            .SingleOrDefaultAsync(u => u.Email == email);
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {email}", HttpStatusCode.BadRequest);
+
+        if (user.UserTwoFaMethods.Any(ut => ut.TwoFaMethod.TwoFactorAuthMethod == TwoFactorAuthMethod.Email))
+            throw new TwoFaTypeAlreadyRegisteredException(TwoFactorAuthMethod.Email);
 
         string twoFaCode = await _userManager.GenerateTwoFactorTokenAsync(user, EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.Email));
         await _mailService.SendEmailAsync(new MailRequestDto { ToEmail = user.Email, Subject = "2FA Code for enable 2FA", Body = $"Here is your code: {twoFaCode}" });
@@ -133,7 +143,8 @@ public class AuthService : IAuthService
 
     public async Task EnableTwoFaAsync(EnableTwoFaDto enableTwoFaDto)
     {
-        var user = await _userManager.FindByEmailAsync(enableTwoFaDto.Email);
+        var user = await _userManager.Users.Include(u => u.UserTwoFaMethods)
+            .SingleOrDefaultAsync(u => u.Email == enableTwoFaDto.Email);
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {enableTwoFaDto.Email}", HttpStatusCode.BadRequest);
 
@@ -141,9 +152,24 @@ public class AuthService : IAuthService
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
-        await _userManager.SetTwoFactorEnabledAsync(user, true);
+        if(!user.TwoFactorEnabled)
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
 
-        user.TwoFactorAuthMethod = TwoFactorAuthMethod.Email;
+        var twoFaMethod = await _unitOfWork.TwoFaMethodReadRepository.GetSingleAsync(tfa => tfa.TwoFactorAuthMethod == TwoFactorAuthMethod.Email);
+
+        UserTwoFaMethod userTwoFaMethod = new()
+        {
+            UserId = user.Id,
+            TwoFaMethodId = twoFaMethod.Id
+        };
+
+        bool isSelected = user.UserTwoFaMethods.Any(ut => ut.IsSelected);
+        if (!isSelected)
+        {
+            userTwoFaMethod.IsSelected = true;
+        }
+
+        user.UserTwoFaMethods.Add(userTwoFaMethod);
         await _userManager.UpdateAsync(user);
     }
 
@@ -168,9 +194,14 @@ public class AuthService : IAuthService
 
     public async Task<byte[]> GetGAuthSetupAsync(string email)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userManager.Users.Include(u => u.UserTwoFaMethods)
+            .ThenInclude(ut => ut.TwoFaMethod)
+            .SingleOrDefaultAsync(u => u.Email == email);
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {email}", HttpStatusCode.BadRequest);
+
+        if (user.UserTwoFaMethods.Any(ut => ut.TwoFaMethod.TwoFactorAuthMethod == TwoFactorAuthMethod.GoogleAuthenticator))
+            throw new TwoFaTypeAlreadyRegisteredException(TwoFactorAuthMethod.GoogleAuthenticator);
 
         string tokenProviderName = EnumHelper.GetEnumDisplayName(TwoFactorAuthMethod.GoogleAuthenticator);
         var authenticatorKey = await _userManager.GetAuthenticationTokenAsync(user, tokenProviderName, "2FA");
@@ -190,7 +221,8 @@ public class AuthService : IAuthService
 
     public async Task EnableGAuthAsync(SetGAuthDto setGAuthDto)
     {
-        var user = await _userManager.FindByEmailAsync(setGAuthDto.Email);
+        var user = await _userManager.Users.Include(u => u.UserTwoFaMethods)
+            .SingleOrDefaultAsync(u => u.Email == setGAuthDto.Email);
         if (user is null)
             throw new UserNotFoundException($"User not found by email: {setGAuthDto.Email}", HttpStatusCode.BadRequest);
 
@@ -204,9 +236,24 @@ public class AuthService : IAuthService
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
-        await _userManager.SetTwoFactorEnabledAsync(user, true);
+        if (!user.TwoFactorEnabled)
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
 
-        user.TwoFactorAuthMethod = TwoFactorAuthMethod.GoogleAuthenticator;
+        var twoFaMethod = await _unitOfWork.TwoFaMethodReadRepository.GetSingleAsync(tfa => tfa.TwoFactorAuthMethod == TwoFactorAuthMethod.GoogleAuthenticator);
+
+        UserTwoFaMethod userTwoFaMethod = new()
+        {
+            UserId = user.Id,
+            TwoFaMethodId = twoFaMethod.Id
+        };
+
+        bool isSelected = user.UserTwoFaMethods.Any(ut => ut.IsSelected);
+        if (!isSelected)
+        {
+            userTwoFaMethod.IsSelected = true;
+        }
+
+        user.UserTwoFaMethods.Add(userTwoFaMethod);
         await _userManager.UpdateAsync(user);
     }
 
