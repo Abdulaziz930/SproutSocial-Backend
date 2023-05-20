@@ -25,6 +25,8 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<SavedBlog> SavedBlogs { get; set; } = null!;
     public DbSet<UserFollow> UserFollows { get; set; } = null!;
     public DbSet<Subscribe> Subscribes { get; set; } = null!;
+    public DbSet<TwoFaMethod> TwoFaMethods { get; set; } = null!;
+    public DbSet<UserTwoFaMethod> UserTwoFaMethods { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
