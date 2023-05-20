@@ -13,6 +13,8 @@ public sealed class UnitOfWork : IUnitOfWork
     private IFollowingWriteRepository? _followingWriteRepository;
     private ISubscribeReadRepository? _subscribeReadRepository;
     private ISubscribeWriteRepository? _subscribeWriteRepository;
+    private ITwoFaMethodReadRepository? _twoFaMethodReadRepository;
+    private ITwoFaMethodWriteRepository? _twoFaMethodWriteRepository;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -29,6 +31,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public IFollowingWriteRepository FollowingWriteRepository => _followingWriteRepository = _followingWriteRepository ?? new FollowingWriteRepository(_context);
     public ISubscribeReadRepository SubscribeReadRepository => _subscribeReadRepository = _subscribeReadRepository ?? new SubscribeReadRepository(_context);
     public ISubscribeWriteRepository SubscribeWriteRepository => _subscribeWriteRepository = _subscribeWriteRepository ?? new SubscribeWriteRepository(_context);
+    public ITwoFaMethodReadRepository TwoFaMethodReadRepository => _twoFaMethodReadRepository = _twoFaMethodReadRepository ?? new TwoFaMethodReadRepository(_context);
+    public ITwoFaMethodWriteRepository TwoFaMethodWriteRepository => _twoFaMethodWriteRepository = _twoFaMethodWriteRepository ?? new TwoFaMethodWriteRepository(_context);
 
     public async Task<int> SaveAsync(CancellationToken cancellationToken = default) 
         => await _context.SaveChangesAsync(cancellationToken);

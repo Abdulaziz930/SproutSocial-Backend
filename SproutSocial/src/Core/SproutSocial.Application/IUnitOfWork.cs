@@ -14,6 +14,8 @@ public interface IUnitOfWork
     IFollowingWriteRepository FollowingWriteRepository { get; }
     ISubscribeReadRepository SubscribeReadRepository { get; }
     ISubscribeWriteRepository SubscribeWriteRepository { get; }
+    ITwoFaMethodReadRepository TwoFaMethodReadRepository { get; }
+    ITwoFaMethodWriteRepository TwoFaMethodWriteRepository { get; }
 
     Task<int> SaveAsync(CancellationToken cancellationToken = default);
 }
