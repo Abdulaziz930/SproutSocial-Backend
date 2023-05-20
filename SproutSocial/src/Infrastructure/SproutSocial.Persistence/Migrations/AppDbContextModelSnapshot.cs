@@ -252,7 +252,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.ToTable("BlogLikes");
+                    b.ToTable("BlogLikes", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.BlogTopic", b =>
@@ -316,7 +316,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.CommentLike", b =>
@@ -343,7 +343,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.ToTable("CommentLikes");
+                    b.ToTable("CommentLikes", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.Identity.AppUser", b =>
@@ -461,7 +461,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserTwoFaMethods");
+                    b.ToTable("UserTwoFaMethods", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.SavedBlog", b =>
@@ -488,7 +488,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.ToTable("SavedBlogs");
+                    b.ToTable("SavedBlogs", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.Subscribe", b =>
@@ -572,7 +572,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("FollowingUserId");
 
-                    b.ToTable("UserFollows");
+                    b.ToTable("UserFollows", (string)null);
                 });
 
             modelBuilder.Entity("SproutSocial.Domain.Entities.UserTopic", b =>
@@ -593,7 +593,7 @@ namespace SproutSocial.Persistence.Migrations
 
                     b.HasIndex("TopicId");
 
-                    b.ToTable("UserTopics");
+                    b.ToTable("UserTopics", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
