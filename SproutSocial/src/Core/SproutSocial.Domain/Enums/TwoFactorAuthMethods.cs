@@ -2,9 +2,10 @@
 
 namespace SproutSocial.Domain.Enums;
 
-public enum TwoFactorAuthMethod
+public enum TwoFactorAuthMethod : byte
 {
-    Email = 1,
+    None,
+    Email,
     [Display(Name = "Google Authenticator")]
     GoogleAuthenticator
 }
