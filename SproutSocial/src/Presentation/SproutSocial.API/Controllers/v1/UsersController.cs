@@ -9,6 +9,7 @@ using SproutSocial.Application.Features.Commands.AppUser.GetTwoFaSetup;
 using SproutSocial.Application.Features.Commands.AppUser.GoogleAuthenticator;
 using SproutSocial.Application.Features.Commands.AppUser.LoginUser;
 using SproutSocial.Application.Features.Commands.AppUser.RefreshTokenLogin;
+using SproutSocial.Application.Features.Commands.AppUser.SelectTwoFaMethod;
 using SproutSocial.Application.Features.Commands.AppUser.TwoFaLogin;
 using SproutSocial.Application.Features.Commands.Blog.RemoveSavedBlog;
 using SproutSocial.Application.Features.Commands.Blog.SaveBlog;
@@ -111,6 +112,15 @@ public class UsersController : BaseController
         var response = await _mediator.Send(gAuthLoginCommandRequest);
 
         return Ok(response);
+    }
+
+    [Authorize]
+    [HttpPost("SelectTwoFaMethod")]
+    public async Task<IActionResult> SelectTwoFaMethod(SelectTwoFaMethodCommandRequest selectTwoFaMethodCommandRequest)
+    {
+        var response = await _mediator.Send(selectTwoFaMethodCommandRequest);
+
+        return StatusCode((int)response.StatusCode, response.Message);
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
