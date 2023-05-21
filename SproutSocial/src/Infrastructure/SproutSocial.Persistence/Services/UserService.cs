@@ -9,6 +9,8 @@ using SproutSocial.Application.DTOs.UserDtos;
 using SproutSocial.Application.Exceptions.Authentication;
 using SproutSocial.Application.Exceptions.Blogs;
 using SproutSocial.Application.Exceptions.Users;
+using SproutSocial.Application.Helpers;
+using SproutSocial.Application.Helpers.Extesions;
 using SproutSocial.Domain.Entities.Identity;
 using SproutSocial.Persistence.Enums;
 using System.Net;
@@ -195,5 +197,39 @@ public class UserService : IUserService
         mailText = mailText.Replace("[ConfirmationLink]", url);
 
         return mailText;
+    }
+
+    public async Task<SelectTwoFaMethodResponseDto> SelectTwoFaMethodAsync(SelectTwoFaMethodDto selectTwoFaMethodDto)
+    {
+        selectTwoFaMethodDto.UserId.ThrowIfNullOrWhiteSpace(message: "Token cannot be null");
+        selectTwoFaMethodDto.TwoFaMethodId.ThrowIfNullOrWhiteSpace(message: "Email cannot be null");
+
+        var user = await _userManager.Users
+            .Include(u => u.UserTwoFaMethods)
+            .ThenInclude(ut => ut.TwoFaMethod)
+            .SingleOrDefaultAsync(u => u.Id == Guid.Parse(selectTwoFaMethodDto.UserId));
+        if (user is null)
+            throw new AuthorizationException("Select 2FA method");
+
+        if (!user.TwoFactorEnabled)
+            throw new TwoFaNotEnabledException();
+
+        var twoFaMethod = user.UserTwoFaMethods.FirstOrDefault(ut => ut.TwoFaMethod.Id == Guid.Parse(selectTwoFaMethodDto.TwoFaMethodId));
+        if (twoFaMethod is null)
+            throw new TwoFaMethodNotFoundException();
+
+        var selectedTwoFaMethod = user.UserTwoFaMethods.FirstOrDefault(ut => ut.IsSelected);
+        if (selectedTwoFaMethod is not null)
+            selectedTwoFaMethod.IsSelected = false;
+
+        twoFaMethod.IsSelected = true;
+
+        await _unitOfWork.SaveAsync();
+
+        return new()
+        {
+            StatusCode = HttpStatusCode.OK,
+            Message = $"{EnumHelper.GetEnumDisplayName(twoFaMethod.TwoFaMethod.TwoFactorAuthMethod)} 2FA method successfully selected"
+        };
     }
 }
