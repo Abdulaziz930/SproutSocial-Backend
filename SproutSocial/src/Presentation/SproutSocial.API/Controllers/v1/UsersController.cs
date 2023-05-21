@@ -115,7 +115,7 @@ public class UsersController : BaseController
     }
 
     [Authorize]
-    [HttpPost("SelectTwoFaMethod")]
+    [HttpPut("SelectTwoFaMethod")]
     public async Task<IActionResult> SelectTwoFaMethod(SelectTwoFaMethodCommandRequest selectTwoFaMethodCommandRequest)
     {
         var response = await _mediator.Send(selectTwoFaMethodCommandRequest);
