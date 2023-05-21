@@ -74,8 +74,7 @@ public class AuthService : IAuthService
                 return new() { RequiresTwoFactor = true, TwoFactorAuthMethod = twoFactorAuthMethod, TwoFaSecurityToken = twoFaSecurityToken };
             }
 
-            var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
-            await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
+            var tokenResponse = await GenerateJwtTokenAsync(user, accessTokenLifeTime);
             return new()
             {
                 RequiresTwoFactor = false,
@@ -114,9 +113,7 @@ public class AuthService : IAuthService
 
         if (user?.RefreshTokenEndDate > DateTime.UtcNow)
         {
-            TokenResponseDto tokenResponse = await _tokenHandler.CreateAccessTokenAsync(2, user);
-            await _userService.UpdateRefreshToken(refreshToken, user, tokenResponse.Expiration, 2);
-            return tokenResponse;
+            return await GenerateJwtTokenAsync(user, 2);
         }
 
         throw new RefreshTokenExpiredException();
@@ -187,9 +184,7 @@ public class AuthService : IAuthService
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
-        var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
-        await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
-        return tokenResponse;
+        return await GenerateJwtTokenAsync(user, accessTokenLifeTime);
     }
 
     public async Task<byte[]> GetGAuthSetupAsync(string email)
@@ -277,9 +272,7 @@ public class AuthService : IAuthService
         if (!isValidCode)
             throw new AuthenticationFailException("Invalid Code");
 
-        var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
-        await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
-        return tokenResponse;
+        return await GenerateJwtTokenAsync(user, accessTokenLifeTime);
     }
 
     private string GenerateTwoFaUserSecurityToken(Guid userId, string secretKey)
@@ -300,5 +293,12 @@ public class AuthService : IAuthService
     {
         string expectedToken = GenerateTwoFaUserSecurityToken(userId, secretKey);
         return token.Equals(expectedToken);
+    }
+
+    private async Task<TokenResponseDto> GenerateJwtTokenAsync(AppUser user, int accessTokenLifeTime)
+    {
+        var tokenResponse = await _tokenHandler.CreateAccessTokenAsync(accessTokenLifeTime, user);
+        await _userService.UpdateRefreshToken(tokenResponse.RefreshToken, user, tokenResponse.Expiration, 2);
+        return tokenResponse;
     }
 }
